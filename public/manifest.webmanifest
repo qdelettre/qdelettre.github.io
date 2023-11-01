@@ -1,0 +1,21 @@
+{
+	"name": "Quentin Delettre",
+	"short_name": "Quentin_DELETTRE",
+	"description": "Starter blog site for Astro",
+	"icons": [
+		{
+			"src": "/favicon-96x96",
+			"sizes": "96x96",
+			"type": "image/png"
+		},
+		{
+			"src": "/favicon-32x32",
+			"sizes": "32x32",
+			"type": "image/png"
+		}
+	],
+	"start_url": "/",
+	"background_color": "#1d1f21",
+	"theme_color": "#2bbc8a",
+	"display": "standalone"
+}
