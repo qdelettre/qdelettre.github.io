@@ -17,11 +17,14 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS);
 			Currently working at
 			<a
 				href="https://www.convelio.com/"
-				class="text-accent sm:hover:underline"
+				class="text-accent"
 				target="_blank"
 				rel="noopener noreferrer"
-				><img src="/convelio.png" alt="Convelio" class="inline-block h-4" /> Convelio</a
-			>.
+			>
+				<img src="/convelio.png" alt="Convelio" class="inline-block h-4" />&#160;<span
+					class="sm:hover:underline">Convelio</span
+				>
+			</a>.
 		</p>
 		<SocialList />
 	</section>
