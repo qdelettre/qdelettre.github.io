@@ -8,8 +8,12 @@
 		"build": "astro build",
 		"postbuild": "pagefind --site dist",
 		"preview": "astro preview",
+		"lint:check": "eslint . --no-fix",
+		"lint": "eslint .",
+		"format:check": "prettier --check .",
 		"format": "prettier -w --cache .",
-		"check": "astro check"
+		"check": "astro check",
+		"prepare": "husky install"
 	},
 	"dependencies": {
 		"@astrojs/mdx": "^1.1.3",
@@ -41,6 +45,8 @@
 		"eslint-plugin-import": "^2.29.0",
 		"eslint-plugin-jsx-a11y": "^6.7.1",
 		"eslint-plugin-prettier": "^5.0.1",
+		"eslint-plugin-unused-imports": "^3.0.0",
+		"husky": "^8.0.3",
 		"mdast-util-to-string": "^4.0.0",
 		"pagefind": "^1.0.3",
 		"postcss": "^8.4.31",
