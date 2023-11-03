@@ -9,6 +9,18 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    groups:
+      eslint:
+        patterns:
+          - ^eslint.*
+      prettier:
+        patterns:
+          - ^prettier.*
+      postcss:
+        patterns:
+          - ^postcss.*
     allow:
       - dependency-type: "direct"
     open-pull-requests-limit: 10
+    assignees:
+      - "qdelettre"
