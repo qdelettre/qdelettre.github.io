@@ -13,6 +13,7 @@ module.exports = {
 		"plugin:prettier/recommended",
 		"plugin:astro/recommended",
 		"plugin:astro/jsx-a11y-recommended",
+		"plugin:playwright/recommended",
 	],
 	rules: {
 		"@typescript-eslint/no-var-requires": "warn",
