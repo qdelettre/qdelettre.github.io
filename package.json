@@ -13,6 +13,8 @@
 		"format:check": "prettier --check .",
 		"format": "prettier -w --cache .",
 		"check": "astro check",
+		"test": "playwright test",
+		"test:install": "playwright install --with-deps",
 		"prepare": "husky install"
 	},
 	"dependencies": {
@@ -30,10 +32,12 @@
 	"devDependencies": {
 		"@astrojs/check": "^0.3.1",
 		"@pagefind/default-ui": "^1.0.3",
+		"@playwright/test": "^1.39.0",
 		"@resvg/resvg-js": "^2.6.0",
 		"@tailwindcss/aspect-ratio": "^0.4.2",
 		"@tailwindcss/typography": "^0.5.10",
 		"@types/eslint": "^8.44.6",
+		"@types/node": "^20.8.10",
 		"@typescript-eslint/eslint-plugin": "^6.9.1",
 		"@typescript-eslint/parser": "^6.9.1",
 		"astro-eslint-parser": "^0.16.0",
@@ -44,6 +48,7 @@
 		"eslint-plugin-astro": "^0.29.1",
 		"eslint-plugin-import": "^2.29.0",
 		"eslint-plugin-jsx-a11y": "^6.8.0",
+		"eslint-plugin-playwright": "^0.18.0",
 		"eslint-plugin-prettier": "^5.0.1",
 		"eslint-plugin-unused-imports": "^3.0.0",
 		"husky": "^8.0.3",

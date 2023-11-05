@@ -3,7 +3,8 @@
 		"astro-build.astro-vscode",
 		"eliostruyf.vscode-front-matter",
 		"eamodio.gitlens",
-		"unifiedjs.vscode-mdx"
+		"unifiedjs.vscode-mdx",
+		"ms-playwright.playwright"
 	],
 	"unwantedRecommendations": []
 }
