@@ -9,16 +9,28 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      # Check for npm updates at 9am UTC
+      time: "08:00"
+      timezone: "Europe/Paris"
     groups:
+      astro:
+        patterns:
+          - "@astrojs*"
+          - "astro"
       eslint:
         patterns:
           - ^eslint.*
+          - "astro-eslint-parser"
       prettier:
         patterns:
           - ^prettier.*
       postcss:
         patterns:
           - ^postcss.*
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss*"
     allow:
       - dependency-type: "direct"
     open-pull-requests-limit: 10
