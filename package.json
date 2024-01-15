@@ -17,20 +17,20 @@
 		"prepare": "husky install"
 	},
 	"dependencies": {
-		"@astrojs/mdx": "^2.0.3",
+		"@astrojs/mdx": "^2.0.4",
 		"@astrojs/prefetch": "^0.4.1",
-		"@astrojs/rss": "^4.0.1",
+		"@astrojs/rss": "^4.0.2",
 		"@astrojs/sitemap": "^3.0.4",
 		"@astrojs/tailwind": "^5.1.0",
 		"@iconify-json/mdi": "^1.1.64",
-		"astro": "^4.1.1",
+		"astro": "^4.1.2",
 		"astro-icon": "^1.0.2",
 		"satori": "0.10.11",
 		"satori-html": "^0.3.2",
 		"sharp": "^0.33.1"
 	},
 	"devDependencies": {
-		"@astrojs/check": "^0.3.4",
+		"@astrojs/check": "^0.4.1",
 		"@pagefind/default-ui": "^1.0.4",
 		"@playwright/test": "^1.40.1",
 		"@resvg/resvg-js": "^2.6.0",
