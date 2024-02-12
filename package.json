@@ -25,7 +25,7 @@
 		"@iconify-json/mdi": "^1.1.64",
 		"astro": "^4.3.2",
 		"astro-icon": "^1.1.0",
-		"satori": "0.10.11",
+		"satori": "0.10.13",
 		"satori-html": "^0.3.2",
 		"sharp": "^0.33.2"
 	},
