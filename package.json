@@ -14,7 +14,7 @@
 		"check": "astro check",
 		"test": "playwright test",
 		"test:install": "playwright install --with-deps",
-		"prepare": "husky install"
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@astrojs/mdx": "^2.1.1",
