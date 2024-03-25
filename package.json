@@ -17,20 +17,20 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@astrojs/mdx": "^2.2.0",
+		"@astrojs/mdx": "^2.2.1",
 		"@astrojs/prefetch": "^0.4.1",
 		"@astrojs/rss": "^4.0.5",
 		"@astrojs/sitemap": "^3.1.1",
 		"@astrojs/tailwind": "^5.1.0",
 		"@iconify-json/mdi": "^1.1.64",
-		"astro": "^4.5.5",
+		"astro": "^4.5.9",
 		"astro-icon": "^1.1.0",
 		"satori": "0.10.13",
 		"satori-html": "^0.3.2",
 		"sharp": "^0.33.2"
 	},
 	"devDependencies": {
-		"@astrojs/check": "^0.5.9",
+		"@astrojs/check": "^0.5.10",
 		"@pagefind/default-ui": "^1.0.4",
 		"@playwright/test": "^1.42.1",
 		"@resvg/resvg-js": "^2.6.0",
