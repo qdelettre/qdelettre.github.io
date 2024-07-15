@@ -30,7 +30,7 @@
 		"sharp": "^0.33.4"
 	},
 	"devDependencies": {
-		"@astrojs/check": "^0.7.0",
+		"@astrojs/check": "^0.8.1",
 		"@pagefind/default-ui": "^1.1.0",
 		"@playwright/test": "^1.45.1",
 		"@resvg/resvg-js": "^2.6.2",
