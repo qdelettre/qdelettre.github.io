@@ -34,6 +34,7 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS);
 			{
 				allPostsByDate.map((p) => (
 					<li class="flex flex-col gap-x-2 sm:flex-row">
+						{/* @ts-expect-error - issue with -> @astrojs/check@0.9.3 */}
 						<PostPreview post={p} />
 					</li>
 				))
