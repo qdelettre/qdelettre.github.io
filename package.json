@@ -35,7 +35,7 @@
 		"@playwright/test": "^1.46.1",
 		"@resvg/resvg-js": "^2.6.2",
 		"@tailwindcss/aspect-ratio": "^0.4.2",
-		"@tailwindcss/typography": "^0.5.14",
+		"@tailwindcss/typography": "^0.5.15",
 		"@types/eslint": "^8.44.8",
 		"@types/node": "^20.14.10",
 		"@typescript-eslint/eslint-plugin": "^7.0.0",
