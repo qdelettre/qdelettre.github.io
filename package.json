@@ -40,7 +40,7 @@
 		"@types/node": "^20.14.10",
 		"@typescript-eslint/eslint-plugin": "^7.0.0",
 		"@typescript-eslint/parser": "^6.21.0",
-		"astro-eslint-parser": "^1.0.2",
+		"astro-eslint-parser": "^1.0.3",
 		"autoprefixer": "^10.4.20",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
