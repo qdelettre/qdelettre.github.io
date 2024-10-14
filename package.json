@@ -51,7 +51,7 @@
 		"eslint-plugin-playwright": "^1.6.2",
 		"eslint-plugin-prettier": "^5.2.1",
 		"eslint-plugin-unused-imports": "^4.1.4",
-		"husky": "^9.0.11",
+		"husky": "^9.1.6",
 		"mdast-util-to-string": "^4.0.0",
 		"pagefind": "^1.1.1",
 		"postcss": "^8.4.47",
