@@ -38,7 +38,7 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"@types/eslint": "^8.44.8",
 		"@types/node": "^20.14.10",
-		"@typescript-eslint/eslint-plugin": "^7.0.0",
+		"@typescript-eslint/eslint-plugin": "^8.12.2",
 		"@typescript-eslint/parser": "^6.21.0",
 		"astro-eslint-parser": "^1.0.3",
 		"autoprefixer": "^10.4.20",
