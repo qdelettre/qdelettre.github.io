@@ -4,7 +4,7 @@ import mdx from "@astrojs/mdx";
 import tailwind from "@astrojs/tailwind";
 import sitemap from "@astrojs/sitemap";
 import prefetch from "@astrojs/prefetch";
-import remarkUnwrapImages from "remark-unwrap-images";
+import rehypeUnwrapImages from "rehype-unwrap-images";
 import { remarkReadingTime } from "./src/utils/remark-reading-time";
 import icon from "astro-icon";
 
@@ -13,7 +13,8 @@ export default defineConfig({
 	// ! Please remember to replace the following site property with your own domain
 	site: "https:/qdelettre.github.io",
 	markdown: {
-		remarkPlugins: [remarkUnwrapImages, remarkReadingTime],
+		rehypePlugins: [rehypeUnwrapImages],
+		remarkPlugins: [remarkReadingTime],
 		remarkRehype: { footnoteLabelProperties: { className: [""] } },
 		shikiConfig: {
 			theme: "dracula",
