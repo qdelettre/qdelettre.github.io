@@ -24,7 +24,7 @@
 		"@astrojs/tailwind": "^5.1.2",
 		"@iconify-json/mdi": "^1.2.1",
 		"astro": "^4.16.16",
-		"astro-icon": "^1.1.1",
+		"astro-icon": "^1.1.4",
 		"satori": "0.12.0",
 		"satori-html": "^0.3.2",
 		"sharp": "^0.33.5"
