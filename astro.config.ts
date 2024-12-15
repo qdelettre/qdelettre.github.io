@@ -3,10 +3,9 @@ import fs from "fs";
 import mdx from "@astrojs/mdx";
 import tailwind from "@astrojs/tailwind";
 import sitemap from "@astrojs/sitemap";
-import prefetch from "@astrojs/prefetch";
 import rehypeUnwrapImages from "rehype-unwrap-images";
-import { remarkReadingTime } from "./src/utils/remark-reading-time";
 import icon from "astro-icon";
+import { remarkReadingTime } from "./src/plugins/remark-reading-time";
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,13 +20,14 @@ export default defineConfig({
 			wrap: true,
 		},
 	},
+	// https://docs.astro.build/en/guides/prefetch/
+	prefetch: true,
 	integrations: [
 		mdx({}),
 		tailwind({
 			applyBaseStyles: false,
 		}),
 		sitemap(),
-		prefetch(),
 		icon(),
 	],
 	vite: {
