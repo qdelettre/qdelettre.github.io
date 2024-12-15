@@ -1,13 +1,12 @@
 ---
-import { ViewTransitions } from "astro:transitions";
-
+import BaseHead from "@/components/BaseHead.astro";
+import Footer from "@/components/layout/Footer.astro";
+import Header from "@/components/layout/Header.astro";
+import SkipLink from "@/components/SkipLink.astro";
+import ThemeProvider from "@/components/ThemeProvider.astro";
+import { siteConfig } from "@/site.config";
 import type { SiteMeta } from "@/types";
-import BaseHead from "@/components/BaseHead";
-import ThemeProvider from "@/components/ThemeProvider";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import SkipLink from "@/components/SkipLink";
-import { siteConfig } from "@/site-config";
+import ClientRouter from "astro/components/ClientRouter.astro";
 
 interface Props {
 	meta: SiteMeta;
@@ -27,7 +26,7 @@ const {
 			This is set to false by default in src/site.config.ts 
 			*/
 		}
-		{siteConfig.includeViewTransitions && <ViewTransitions fallback="none" />}
+		{siteConfig.includeViewTransitions && <ClientRouter fallback="none" />}
 	</head>
 	<body>
 		<ThemeProvider />

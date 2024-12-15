@@ -1,4 +1,5 @@
-import { siteConfig } from "@/site-config";
+import { siteConfig } from "@/site.config";
+import type { CollectionEntry } from "astro:content";
 
 const dateFormat = new Intl.DateTimeFormat(siteConfig.date.locale, siteConfig.date.options);
 
@@ -14,4 +15,8 @@ export function getFormattedDate(
 	}
 
 	return dateFormat.format(new Date(date));
+}
+
+export function collectionDateSort(a: CollectionEntry<"post">, b: CollectionEntry<"post">) {
+	return b.data.publishDate.getTime() - a.data.publishDate.getTime();
 }
