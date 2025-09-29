@@ -17,12 +17,12 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@astrojs/mdx": "^4.3.5",
+		"@astrojs/mdx": "^4.3.6",
 		"@astrojs/rss": "^4.0.12",
 		"@astrojs/sitemap": "^3.6.0",
 		"@astrojs/tailwind": "^6.0.2",
 		"@iconify-json/mdi": "^1.2.3",
-		"astro": "^5.13.9",
+		"astro": "^5.14.1",
 		"astro-icon": "^1.1.5",
 		"satori": "0.18.2",
 		"satori-html": "^0.3.2",
