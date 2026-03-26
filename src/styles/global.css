@@ -1,11 +1,40 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentcolor);
+	}
+}
+
+@theme {
+	--color-bgColor: hsl(var(--theme-bg));
+	--color-textColor: hsl(var(--theme-text));
+	--color-link: hsl(var(--theme-link));
+	--color-accent: hsl(var(--theme-accent));
+	--color-accent-2: hsl(var(--theme-accent-2));
+	--color-quote: hsl(var(--theme-quote));
+
+	--transition-property-height: height;
+}
 
 @layer base {
 	:root {
 		color-scheme: light;
-		/* https://tailwindcss.com/docs/customizing-colors#using-css-variables */
 		--theme-bg: 0deg 0% 92%;
 		--theme-link: 333deg 0% 50%;
 		--theme-text: 203deg 11% 15%;
@@ -29,6 +58,108 @@
 	}
 
 	html body {
-		@apply mx-auto flex min-h-screen max-w-3xl flex-col bg-bgColor px-8 pt-16 font-mono text-sm font-normal text-textColor antialiased;
+		@apply bg-bgColor text-textColor mx-auto flex min-h-screen max-w-3xl flex-col px-8 pt-16 font-mono text-sm font-normal antialiased;
+	}
+}
+
+@utility cactus-link {
+	background-size: 100% 6px;
+	background-position: bottom;
+	background-repeat: repeat-x;
+	background-image: linear-gradient(
+		transparent,
+		transparent 5px,
+		hsl(var(--theme-text)) 5px,
+		hsl(var(--theme-text))
+	);
+
+	&:hover {
+		background-image: linear-gradient(
+			transparent,
+			transparent 4px,
+			hsl(var(--theme-link)) 4px,
+			hsl(var(--theme-link))
+		);
+	}
+}
+
+@utility title {
+	@apply text-accent-2 text-2xl font-semibold;
+}
+
+@layer base {
+	.prose-cactus {
+		--tw-prose-body: hsl(var(--theme-text));
+		--tw-prose-headings: hsl(var(--theme-accent-2));
+		--tw-prose-links: hsl(var(--theme-text));
+		--tw-prose-bold: hsl(var(--theme-text));
+		--tw-prose-bullets: hsl(var(--theme-text));
+		--tw-prose-quotes: hsl(var(--theme-quote));
+		--tw-prose-code: hsl(var(--theme-text));
+		--tw-prose-hr: 0.5px dashed #666;
+		--tw-prose-th-borders: #666;
+	}
+
+	.prose a {
+		@apply cactus-link no-underline;
+	}
+
+	.prose strong {
+		font-weight: 700;
+	}
+
+	.prose code {
+		border: 1px dotted #666;
+		border-radius: 2px;
+	}
+
+	.prose blockquote {
+		border-left-width: 0;
+	}
+
+	.prose hr {
+		border-top-style: dashed;
+	}
+
+	.prose thead {
+		border-bottom-width: 0;
+	}
+
+	.prose thead th {
+		font-weight: 700;
+		border-bottom: 1px dashed #666;
+	}
+
+	.prose tbody tr {
+		border-bottom-width: 0;
+	}
+
+	.prose tfoot {
+		border-top: 1px dashed #666;
+	}
+
+	.prose sup {
+		@apply ms-0.5;
+	}
+
+	.prose sup a {
+		@apply bg-none;
+	}
+
+	.prose sup a:hover {
+		@apply text-link bg-none no-underline;
+	}
+
+	.prose sup a::before {
+		content: "[";
+	}
+
+	.prose sup a::after {
+		content: "]";
+	}
+
+	.prose-sm code {
+		font-size: 0.875rem;
+		font-weight: 400;
 	}
 }
