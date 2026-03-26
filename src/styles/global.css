@@ -22,12 +22,13 @@
 }
 
 @theme {
-	--color-bgColor: hsl(var(--theme-bg));
-	--color-textColor: hsl(var(--theme-text));
-	--color-link: hsl(var(--theme-link));
-	--color-accent: hsl(var(--theme-accent));
-	--color-accent-2: hsl(var(--theme-accent-2));
-	--color-quote: hsl(var(--theme-quote));
+	/* Light mode colors (default) */
+	--color-bgColor: hsl(0deg 0% 92%);
+	--color-textColor: hsl(203deg 11% 15%);
+	--color-link: hsl(333deg 0% 50%);
+	--color-accent: hsl(10deg 10% 12%);
+	--color-accent-2: hsl(0deg 0% 7%);
+	--color-quote: hsl(10deg 10% 12%);
 
 	--transition-property-height: height;
 }
@@ -35,22 +36,16 @@
 @layer base {
 	:root {
 		color-scheme: light;
-		--theme-bg: 0deg 0% 92%;
-		--theme-link: 333deg 0% 50%;
-		--theme-text: 203deg 11% 15%;
-		--theme-accent: 10deg 10% 12%;
-		--theme-accent-2: 0deg 0% 7%;
-		--theme-quote: 10deg 10% 12%;
 	}
 
 	:root.dark {
 		color-scheme: dark;
-		--theme-bg: 210deg 6% 12%;
-		--theme-link: 330deg 0% 30%;
-		--theme-text: 220deg 3% 79%;
-		--theme-accent: 10deg 10% 92%;
-		--theme-accent-2: 0deg 0% 93%;
-		--theme-quote: 10deg 10% 92%;
+		--color-bgColor: hsl(210deg 6% 12%);
+		--color-textColor: hsl(220deg 3% 79%);
+		--color-link: hsl(330deg 0% 30%);
+		--color-accent: hsl(10deg 10% 92%);
+		--color-accent-2: hsl(0deg 0% 93%);
+		--color-quote: hsl(10deg 10% 92%);
 	}
 
 	html {
@@ -69,16 +64,16 @@
 	background-image: linear-gradient(
 		transparent,
 		transparent 5px,
-		hsl(var(--theme-text)) 5px,
-		hsl(var(--theme-text))
+		var(--color-textColor) 5px,
+		var(--color-textColor)
 	);
 
 	&:hover {
 		background-image: linear-gradient(
 			transparent,
 			transparent 4px,
-			hsl(var(--theme-link)) 4px,
-			hsl(var(--theme-link))
+			var(--color-link) 4px,
+			var(--color-link)
 		);
 	}
 }
@@ -87,79 +82,85 @@
 	@apply text-accent-2 text-2xl font-semibold;
 }
 
-@layer base {
-	.prose-cactus {
-		--tw-prose-body: hsl(var(--theme-text));
-		--tw-prose-headings: hsl(var(--theme-accent-2));
-		--tw-prose-links: hsl(var(--theme-text));
-		--tw-prose-bold: hsl(var(--theme-text));
-		--tw-prose-bullets: hsl(var(--theme-text));
-		--tw-prose-quotes: hsl(var(--theme-quote));
-		--tw-prose-code: hsl(var(--theme-text));
-		--tw-prose-hr: 0.5px dashed #666;
-		--tw-prose-th-borders: #666;
-	}
-
-	.prose a {
-		@apply cactus-link no-underline;
-	}
-
-	.prose strong {
-		font-weight: 700;
-	}
-
-	.prose code {
-		border: 1px dotted #666;
-		border-radius: 2px;
-	}
-
-	.prose blockquote {
-		border-left-width: 0;
-	}
-
-	.prose hr {
-		border-top-style: dashed;
-	}
-
-	.prose thead {
-		border-bottom-width: 0;
-	}
-
-	.prose thead th {
-		font-weight: 700;
-		border-bottom: 1px dashed #666;
-	}
-
-	.prose tbody tr {
-		border-bottom-width: 0;
-	}
-
-	.prose tfoot {
-		border-top: 1px dashed #666;
-	}
-
-	.prose sup {
-		@apply ms-0.5;
-	}
-
-	.prose sup a {
-		@apply bg-none;
-	}
-
-	.prose sup a:hover {
-		@apply text-link bg-none no-underline;
-	}
-
-	.prose sup a::before {
-		content: "[";
-	}
-
-	.prose sup a::after {
-		content: "]";
-	}
-
-	.prose-sm code {
+@utility prose-sm {
+	code {
 		font-size: 0.875rem;
 		font-weight: 400;
 	}
+}
+
+/* Prose overrides — unlayered CSS to guarantee precedence over the typography plugin */
+.prose {
+	--tw-prose-body: var(--color-textColor);
+	--tw-prose-headings: var(--color-accent-2);
+	--tw-prose-links: var(--color-textColor);
+	--tw-prose-bold: var(--color-textColor);
+	--tw-prose-bullets: var(--color-textColor);
+	--tw-prose-quotes: var(--color-quote);
+	--tw-prose-code: var(--color-textColor);
+	--tw-prose-hr: 0.5px dashed #666;
+	--tw-prose-th-borders: #666;
+}
+
+.prose a {
+	@apply cactus-link no-underline;
+}
+
+.prose strong {
+	font-weight: 700;
+}
+
+.prose code {
+	border: 1px dotted #666;
+	border-radius: 2px;
+}
+
+.prose blockquote {
+	border-left-width: 0;
+}
+
+.prose hr {
+	border-top-style: dashed;
+}
+
+.prose thead {
+	border-bottom-width: 0;
+}
+
+.prose thead th {
+	font-weight: 700;
+	border-bottom: 1px dashed #666;
+}
+
+.prose tbody tr {
+	border-bottom-width: 0;
+}
+
+.prose tfoot {
+	border-top: 1px dashed #666;
+}
+
+.prose sup {
+	@apply ms-0.5;
+}
+
+.prose sup a {
+	@apply bg-none;
+}
+
+.prose sup a:hover {
+	@apply text-link bg-none no-underline;
+}
+
+.prose sup a::before {
+	content: "[";
+}
+
+.prose sup a::after {
+	content: "]";
+}
+
+.prose-sm code {
+	font-size: 0.875rem;
+	font-weight: 400;
 }
