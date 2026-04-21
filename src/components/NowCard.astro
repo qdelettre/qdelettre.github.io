@@ -1,0 +1,79 @@
+---
+interface Props {
+	label: string;
+	dotColor?: string;
+	headline: string;
+}
+
+const { label, dotColor = "var(--accent)", headline } = Astro.props;
+---
+
+<div class="now-card">
+	<div class="label">
+		<span class="dot" style={`background:${dotColor}`}></span>
+		{label}
+	</div>
+	<div class="headline">{headline}</div>
+	<div class="sub"><slot /></div>
+</div>
+
+<style>
+	.now-card {
+		background: var(--surface-02);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-card);
+		padding: 16px 18px;
+		transition:
+			background 120ms,
+			border-color 120ms,
+			transform 120ms;
+	}
+	.now-card:hover {
+		background: var(--surface-04);
+		border-color: var(--line-strong);
+	}
+	.now-card:active {
+		transform: scale(0.98);
+	}
+	.label {
+		font-family: var(--font-sans);
+		font-size: var(--text-2xs);
+		font-weight: 510;
+		color: var(--fg3);
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		margin-bottom: 10px;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+	.headline {
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 510;
+		color: var(--fg1);
+		letter-spacing: -0.15px;
+		margin-bottom: 4px;
+	}
+	.sub {
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 400;
+		color: var(--fg3);
+		line-height: 1.5;
+	}
+	.sub :global(code) {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--fg2);
+		background: var(--surface-04);
+		padding: 1px 5px;
+		border-radius: 3px;
+		border: 1px solid var(--line-subtle);
+	}
+</style>

@@ -1,200 +1,247 @@
 ---
-// Heavy inspiration taken from Astro Starlight -> https://github.com/withastro/starlight/blob/main/packages/starlight/components/Search.astro
+import { getAllPosts, getUniqueTags } from "@/data/post";
+import { tagColorVar } from "@/utils/tag-color";
 
-import "@pagefind/default-ui/css/ui.css";
+const posts = await getAllPosts();
+const count = posts.length;
+const tags = getUniqueTags(posts);
+const tagsWithColors = tags.map((t) => ({
+	name: t,
+	color: tagColorVar(t),
+	count: posts.filter((p) => p.data.tags.includes(t)).length,
+}));
 ---
 
-<site-search id="search" class="ms-auto">
-	<button
-		data-open-modal
-		disabled
-		class="flex h-9 w-9 items-center justify-center rounded-md ring-zinc-400 transition-all hover:ring-2"
-	>
+<div class="toolbar">
+	<label class="search" for="site-search">
 		<svg
-			aria-label="search"
-			class="h-6 w-6"
-			xmlns="http://www.w3.org/2000/svg"
-			width="16"
-			height="16"
+			width="13"
+			height="13"
 			viewBox="0 0 24 24"
 			fill="none"
-			stroke="currentColor"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			stroke-width="1.5"
+			stroke="var(--fg3)"
+			stroke-width="1.75"
+			aria-hidden="true"
 		>
-			<path stroke="none" d="M0 0h24v24H0z"></path>
-			<path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6"></path>
+			<circle cx="11" cy="11" r="7"></circle>
+			<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 		</svg>
-	</button>
-	<dialog
-		aria-label="search"
-		class="h-full max-h-full w-full max-w-full border border-zinc-400 bg-bgColor shadow backdrop:backdrop-blur sm:mx-auto sm:mb-auto sm:mt-16 sm:h-max sm:max-h-[calc(100%-8rem)] sm:min-h-[15rem] sm:w-5/6 sm:max-w-[48rem] sm:rounded-md"
+		<input id="site-search" type="search" placeholder="Search posts…" autocomplete="off" />
+		<span class="kbd-mini" data-kbd="K">⌘ K</span>
+	</label>
+	<span class="count" data-count={count}>{count} posts</span>
+</div>
+
+<div class="filters" data-filters>
+	<button type="button" class="filter-tag active" data-tag="__all"
+		>All <span class="num">{count}</span></button
 	>
-		<div class="dialog-frame flex flex-col gap-4 p-6 pt-12 sm:pt-6">
-			<button
-				data-close-modal
-				class="ms-auto cursor-pointer rounded-md bg-zinc-200 p-2 font-semibold dark:bg-zinc-700"
-				>Close</button
-			>
-			{
-				import.meta.env.DEV ? (
-					<div class="mx-auto text-center">
-						<p>
-							Search is only available in production builds. <br />
-							Try building and previewing the site to test it out locally.
-						</p>
-					</div>
-				) : (
-					<div class="search-container">
-						<div id="cactus__search" />
-					</div>
-				)
-			}
-		</div>
-	</dialog>
-</site-search>
+	{
+		tagsWithColors.map((t) => (
+			<button type="button" class="filter-tag" data-tag={t.name}>
+				<span class="swatch" style={`background:${t.color}`} />
+				{t.name} <span class="num">{t.count}</span>
+			</button>
+		))
+	}
+</div>
+
+<div class="search-results" data-search-results hidden></div>
 
 <script>
-	class SiteSearch extends HTMLElement {
-		constructor() {
-			super();
-			const openBtn = this.querySelector<HTMLButtonElement>("button[data-open-modal]")!;
-			const closeBtn = this.querySelector<HTMLButtonElement>("button[data-close-modal]")!;
-			const dialog = this.querySelector("dialog")!;
-			const dialogFrame = this.querySelector(".dialog-frame")!;
-
-			const onWindowClick = (event: MouseEvent) => {
-				// check if it's a link
-				const isLink = "href" in (event.target || {});
-				// make sure the click is either a link or outside of the dialog
-				if (
-					isLink ||
-					(document.body.contains(event.target as Node) &&
-						!dialogFrame.contains(event.target as Node))
-				)
-					closeModal();
-			};
-
-			const openModal = (event?: MouseEvent) => {
-				dialog.showModal();
-				this.querySelector("input")?.focus();
-				event?.stopPropagation();
-				window.addEventListener("click", onWindowClick);
-			};
-
-			const closeModal = () => {
-				if (dialog.open) {
-					dialog.close();
-					window.removeEventListener("click", onWindowClick);
-				}
-			};
-
-			openBtn.addEventListener("click", openModal);
-			openBtn.disabled = false;
-			closeBtn.addEventListener("click", closeModal);
-
-			// Listen for `/` keyboard shortcut
-			window.addEventListener("keydown", (e) => {
-				if (e.key === "/" && !dialog.open) {
-					openModal();
-					e.preventDefault();
-				}
-			});
-
-			window.addEventListener("DOMContentLoaded", () => {
-				if (import.meta.env.DEV) return;
-				const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
-				onIdle(async () => {
-					const { PagefindUI } = await import("@pagefind/default-ui");
-					new PagefindUI({
-						element: "#cactus__search",
-						baseUrl: import.meta.env.BASE_URL,
-						bundlePath: import.meta.env.BASE_URL.replace(/\/$/, "") + "/pagefind/",
-						showImages: false,
-						showSubResults: true,
-					});
-				});
-			});
-
-			// close modal and clear input on view-transtion
-			document.addEventListener("astro:after-swap", () => {
-				// clear the search field
-				(document.querySelector(".pagefind-ui__search-clear") as HTMLButtonElement)?.click();
-				// close the modal & remove event listener on body
-				closeModal();
-			});
-		}
+	function escapeAttr(s: string): string {
+		return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+	}
+	function escapeText(s: string): string {
+		return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	}
 
-	customElements.define("site-search", SiteSearch);
+	// Pagefind module cache survives across soft-navs (module-scope).
+	type Pagefind = typeof import("/pagefind/pagefind.js");
+	let pagefind: Pagefind | null = null;
+	async function ensurePagefind(): Promise<Pagefind> {
+		if (pagefind) return pagefind;
+		const pagefindUrl = "/pagefind/pagefind.js";
+		const mod = await import(/* @vite-ignore */ pagefindUrl);
+		await mod.init();
+		pagefind = mod;
+		return mod;
+	}
+
+	// Document-level keydown: bind once, survives soft-navs. Re-query DOM inside.
+	document.addEventListener("keydown", (e) => {
+		const input = document.querySelector<HTMLInputElement>("#site-search");
+		if (!input) return;
+		if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+			e.preventDefault();
+			input.focus();
+			input.select();
+		}
+		if (e.key === "Escape" && document.activeElement === input) {
+			input.value = "";
+			input.blur();
+			const resultsEl = document.querySelector<HTMLDivElement>("[data-search-results]");
+			const yearGroups = document.querySelectorAll<HTMLDivElement>("[data-year-group]");
+			if (resultsEl) resultsEl.hidden = true;
+			yearGroups.forEach((el) => (el.hidden = false));
+		}
+	});
+
+	// Per-page DOM queries + element-scoped listeners. Runs at module load for
+	// the initial page, then again on every soft-nav swap (astro:after-swap
+	// does NOT fire on initial load, so this is dup-free). On soft-nav the
+	// swapped-out DOM elements take their listeners with them — no leaks.
+	function initDomListeners() {
+		const input = document.querySelector<HTMLInputElement>("#site-search");
+		const resultsEl = document.querySelector<HTMLDivElement>("[data-search-results]");
+		const filters = document.querySelector<HTMLDivElement>("[data-filters]");
+		const yearGroups = document.querySelectorAll<HTMLDivElement>("[data-year-group]");
+		const rows = document.querySelectorAll<HTMLElement>("[data-tags]");
+
+		if (!input || !resultsEl || !filters) return;
+
+		function setListVisible(visible: boolean) {
+			if (!resultsEl) return;
+			resultsEl.hidden = visible;
+			yearGroups.forEach((el) => (el.hidden = !visible));
+		}
+
+		async function runSearch(query: string) {
+			if (!resultsEl) return;
+			if (!query.trim()) {
+				resultsEl.innerHTML = "";
+				setListVisible(true);
+				return;
+			}
+			const pf = await ensurePagefind();
+			const { results } = await pf.debouncedSearch(query);
+			const items = await Promise.all(results.map((r) => r.data()));
+			// item.excerpt is HTML by design — Pagefind owns escaping and wraps
+			// matched terms in <mark>. Trust assumes the indexed content is ours.
+			resultsEl.innerHTML = items
+				.map(
+					(item) => `
+						<a class="post-row index" href="${escapeAttr(item.url)}" data-testid="post-row">
+							<span class="date">${escapeText((item.meta?.date ?? "").slice(0, 10))}</span>
+							<div>
+								<div class="title">${escapeText(item.meta?.title ?? item.url)}</div>
+								<div class="desc">${item.excerpt}</div>
+							</div>
+						</a>
+					`,
+				)
+				.join("");
+			setListVisible(false);
+		}
+
+		input.addEventListener("input", () => runSearch(input.value));
+
+		filters.addEventListener("click", (e) => {
+			if (!(e.target instanceof Element)) return;
+			const btn = e.target.closest<HTMLButtonElement>("button.filter-tag");
+			if (!btn) return;
+			filters.querySelectorAll(".filter-tag").forEach((el) => el.classList.remove("active"));
+			btn.classList.add("active");
+			const tag = btn.dataset.tag ?? "__all";
+			rows.forEach((row) => {
+				const rowTags = (row.dataset.tags ?? "").split(",");
+				row.hidden = tag !== "__all" && !rowTags.includes(tag);
+			});
+		});
+	}
+	initDomListeners();
+	document.addEventListener("astro:after-swap", initDomListeners);
 </script>
 
-<style is:global>
-	:root {
-		--pagefind-ui-font: inherit;
-	}
-
-	#cactus__search .pagefind-ui__search-clear {
-		width: calc(60px * var(--pagefind-ui-scale));
-		padding: 0;
-		background-color: transparent;
-		overflow: hidden;
-	}
-	#cactus__search .pagefind-ui__search-clear:focus {
-		outline: 1px solid theme("colors.accent-2");
-	}
-	#cactus__search .pagefind-ui__search-clear::before {
-		content: "";
-		-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12'%3E%3C/path%3E%3C/svg%3E")
-			center / 60% no-repeat;
-		mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12'%3E%3C/path%3E%3C/svg%3E")
-			center / 60% no-repeat;
-		background-color: theme("colors.accent");
-		display: block;
-		width: 100%;
-		height: 100%;
-	}
-
-	#cactus__search .pagefind-ui__result {
-		border: 0;
-	}
-
-	#cactus__search .pagefind-ui__result-link {
-		background-size: 100% 6px;
-		background-position: bottom;
-		background-repeat: repeat-x;
-		background-image: linear-gradient(
-			transparent,
-			transparent 5px,
-			theme("colors.textColor") 5px,
-			theme("colors.textColor")
-		);
-	}
-
-	#cactus__search .pagefind-ui__result-link:hover {
-		text-decoration: none;
-		background-image: linear-gradient(
-			transparent,
-			transparent 4px,
-			theme("colors.link") 4px,
-			theme("colors.link")
-		);
-	}
-
-	#cactus__search mark {
-		color: theme("colors.quote");
-		background-color: transparent;
-		font-weight: 600;
-	}
-</style>
-
 <style>
-	#cactus__search {
-		--pagefind-ui-primary: theme("colors.accent");
-		--pagefind-ui-text: theme("colors.textColor");
-		--pagefind-ui-background: theme("colors.bgColor");
-		--pagefind-ui-border: theme("colors.zinc.400");
-		--pagefind-ui-border-width: 1px;
+	.toolbar {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 14px 0;
+		border-top: 1px solid var(--line-subtle);
+		border-bottom: 1px solid var(--line-subtle);
+		margin-bottom: 6px;
+	}
+	.search {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		background: var(--surface-02);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-md);
+		padding: 6px 12px;
+	}
+	.search input {
+		background: transparent;
+		border: none;
+		outline: none;
+		color: var(--fg1);
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		flex: 1;
+	}
+	.search input::placeholder {
+		color: var(--fg3);
+	}
+	.search input::-webkit-search-cancel-button {
+		cursor: pointer;
+	}
+	.kbd-mini {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		font-weight: 510;
+		background: var(--surface-03);
+		border: 1px solid var(--line-subtle);
+		padding: 1px 5px;
+		border-radius: 3px;
+		color: var(--fg3);
+	}
+	.count {
+		font-family: var(--font-sans);
+		font-size: var(--text-xs);
+		font-weight: 510;
+		color: var(--fg3);
+		font-variant-numeric: tabular-nums;
+	}
+	.filters {
+		display: flex;
+		gap: 8px;
+		padding: 16px 0 24px;
+		flex-wrap: wrap;
+	}
+	.filter-tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: transparent;
+		border: 1px solid var(--border-1);
+		border-radius: var(--radius-pill);
+		padding: 3px 12px 3px 10px;
+		font-family: var(--font-sans);
+		font-size: var(--text-xs);
+		font-weight: 510;
+		color: var(--fg2);
+		cursor: pointer;
+		transition: background 120ms;
+	}
+	.filter-tag:hover {
+		background: var(--surface-03);
+	}
+	.filter-tag.active {
+		background: var(--surface-05);
+		color: var(--fg1);
+		border-color: var(--line-strong);
+	}
+	.filter-tag .swatch {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+	.filter-tag .num {
+		color: var(--fg4);
+		font-weight: 400;
+		margin-left: 2px;
 	}
 </style>

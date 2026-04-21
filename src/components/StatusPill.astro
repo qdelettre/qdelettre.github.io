@@ -1,0 +1,50 @@
+---
+import { OFFICE_HOURS_LABEL } from "@/utils/office-hours";
+
+interface Props {
+	label: string;
+}
+const { label } = Astro.props;
+---
+
+<a
+	class="status-pill"
+	href="mailto:quentin.delettre@pm.me"
+	aria-label={`${label} — Email: ${OFFICE_HOURS_LABEL}`}
+	data-tooltip={OFFICE_HOURS_LABEL}
+>
+	<span class="dot status-dot-halo"></span>
+	{label}
+</a>
+
+<style>
+	.status-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		background: var(--surface-03);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-pill);
+		padding: 3px 12px 3px 8px;
+		font-family: var(--font-sans);
+		font-size: var(--text-xs);
+		font-weight: 510;
+		color: var(--fg2);
+		text-decoration: none;
+		cursor: pointer;
+		transition:
+			background 120ms,
+			transform 120ms;
+	}
+	.status-pill:hover {
+		background: var(--surface-04);
+	}
+	.status-pill:active {
+		transform: scale(0.96);
+	}
+	.dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+</style>

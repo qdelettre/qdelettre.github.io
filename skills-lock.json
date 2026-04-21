@@ -1,0 +1,83 @@
+{
+	"version": 1,
+	"skills": {
+		"accessibility": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "github",
+			"skillPath": "skills/accessibility/SKILL.md",
+			"computedHash": "6462f04969f59f771150e6410e6a11fa397f2934be0b51e8650f495feed1e28d"
+		},
+		"accessibility-compliance": {
+			"source": "wshobson/agents",
+			"sourceType": "github",
+			"skillPath": "plugins/ui-design/skills/accessibility-compliance/SKILL.md",
+			"computedHash": "36d3b046163c42251732b3127c042f6b8eb7d91fcbf7ef9ae79fde79e9c99369"
+		},
+		"best-practices": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "github",
+			"skillPath": "skills/best-practices/SKILL.md",
+			"computedHash": "98dafea60ec1a7f5f70f6febcdd4b4fa3fe15723ad9c0b991c0818615bff7ba6"
+		},
+		"core-web-vitals": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "github",
+			"skillPath": "skills/core-web-vitals/SKILL.md",
+			"computedHash": "fa437acc2249cea2cb28f190ba7faf8fdfac829d1c1aafa9ce938c6dd9338721"
+		},
+		"make-interfaces-feel-better": {
+			"source": "jakubkrehel/make-interfaces-feel-better",
+			"sourceType": "github",
+			"skillPath": "skills/make-interfaces-feel-better/SKILL.md",
+			"computedHash": "54b6e221bbe4e2d1a8461c3f9ecabe69daf891f964e9ee5e699c323daa018f2e"
+		},
+		"performance": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "github",
+			"skillPath": "skills/performance/SKILL.md",
+			"computedHash": "acbafe2fcbfc3a1a67db47c2f6299d5c0e16f543c4e683e38e74a8ccb54888fb"
+		},
+		"responsive-design": {
+			"source": "wshobson/agents",
+			"sourceType": "github",
+			"skillPath": "plugins/ui-design/skills/responsive-design/SKILL.md",
+			"computedHash": "0977c17696ab66ea613ce5b83c856bc7cd01332d98ae237dac7539840fe96187"
+		},
+		"seo": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "github",
+			"skillPath": "skills/seo/SKILL.md",
+			"computedHash": "f1fed683b76913d26fbf1aa1e008e6932f7771701fc3a79925b042236aa4681a"
+		},
+		"tailwind-design-system": {
+			"source": "wshobson/agents",
+			"sourceType": "github",
+			"skillPath": "plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+			"computedHash": "988d80e52c67c3692d43cc963b6a048a239895e88b272b061de55370d0f8efc3"
+		},
+		"visual-design-foundations": {
+			"source": "wshobson/agents",
+			"sourceType": "github",
+			"skillPath": "plugins/ui-design/skills/visual-design-foundations/SKILL.md",
+			"computedHash": "9f0f44bd206036f17f69cf78f3f3b5f9c0e0118672574ffd35c4c34c3d574d16"
+		},
+		"wcag-audit-patterns": {
+			"source": "wshobson/agents",
+			"sourceType": "github",
+			"skillPath": "plugins/accessibility-compliance/skills/wcag-audit-patterns/SKILL.md",
+			"computedHash": "df495bdd3466d293e019fa191422d0a3e6cb9c50f275189a70d9da25add075ac"
+		},
+		"web-design-guidelines": {
+			"source": "vercel-labs/agent-skills",
+			"sourceType": "github",
+			"skillPath": "skills/web-design-guidelines/SKILL.md",
+			"computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+		},
+		"web-quality-audit": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "github",
+			"skillPath": "skills/web-quality-audit/SKILL.md",
+			"computedHash": "1168be21aa9fe7bdc6e6e053ca05b6ca5a45675a527c103cdf77bc56ce8159af"
+		}
+	}
+}

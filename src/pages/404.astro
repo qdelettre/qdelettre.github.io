@@ -1,13 +1,51 @@
 ---
-import PageLayout from "@/layouts/Base.astro";
+import Base from "@/layouts/Base.astro";
 
 const meta = {
-	title: "Oops! You found a missing page!",
-	description: "Oops! It looks like this page is lost in space!",
+	title: "404",
+	description: "Page not found.",
 };
 ---
 
-<PageLayout meta={meta}>
-	<h1 class="title mb-6">404 | Oops something went wrong</h1>
-	<p class="mb-8">Please use the navigation to find your way back</p>
-</PageLayout>
+<Base meta={meta}>
+	<section class="notfound">
+		<div class="t-eyebrow t-eyebrow--accent">404</div>
+		<h1>Page not found.</h1>
+		<p class="lede">That route doesn't exist. Or the link rotted — it happens.</p>
+		<a class="back" href="/">← back home</a>
+	</section>
+</Base>
+
+<style>
+	.notfound {
+		padding: 48px 0;
+	}
+	.notfound h1 {
+		font-family: var(--font-sans);
+		font-size: var(--text-4xl);
+		font-weight: 510;
+		line-height: 1.02;
+		letter-spacing: -1.056px;
+		color: var(--fg1);
+		font-feature-settings: "cv01", "ss03";
+		margin: 12px 0 16px;
+	}
+	.lede {
+		font-family: var(--font-sans);
+		font-size: var(--text-lg);
+		color: var(--fg3);
+		margin: 0 0 24px;
+	}
+	.back {
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 510;
+		color: var(--fg1);
+		text-decoration: none;
+		border-bottom: 1px solid var(--accent);
+		padding-bottom: 1px;
+	}
+	.back:hover {
+		color: var(--accent-hover);
+	}
+</style>

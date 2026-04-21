@@ -1,44 +1,249 @@
 ---
-import { getAllPosts } from "@/data/post";
-import PostPreview from "@/components/blog/PostPreview.astro";
-import SocialList from "@/components/SocialList.astro";
-import PageLayout from "@/layouts/Base.astro";
-import { collectionDateSort } from "@/utils/date";
+import { render } from "astro:content";
 
-const MAX_POSTS = 10;
-const allPosts = await getAllPosts();
-const allPostsByDate = allPosts.sort(collectionDateSort).slice(0, MAX_POSTS);
+import Base from "@/layouts/Base.astro";
+import StatusPill from "@/components/StatusPill.astro";
+import PostRow from "@/components/PostRow.astro";
+import NowCard from "@/components/NowCard.astro";
+import { getAllPosts } from "@/data/post";
+import { siteConfig } from "@/site.config";
+import { tagColorVar } from "@/utils/tag-color";
+
+const posts = (await getAllPosts()).slice(0, 5);
+const enrichedPosts = await Promise.all(
+	posts.map(async (p) => ({
+		post: p,
+		readingTime: (await render(p)).remarkPluginFrontmatter?.readingTime,
+	})),
+);
+const meta = {
+	title: siteConfig.title,
+	description: siteConfig.description,
+};
+const stack = [
+	{ label: "TypeScript", tag: "typescript" },
+	{ label: "Angular21+", tag: "angular" },
+	{ label: "PHP8+", tag: "php" },
+	{ label: "Astro", tag: "astro" },
+	{ label: "Git", tag: "git" },
+	{ label: "Claude", tag: "claude" },
+];
 ---
 
-<PageLayout meta={{ title: "Home" }}>
-	<section>
-		<h1 class="title mb-6">Hello World!</h1>
-		<p>I’m a software engineer. I love to build and learn new things.</p>
-		<p class="mb-4">
-			Currently working at
-			<a
-				href="https://www.convelio.com/"
-				class="text-accent"
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				<img src="/convelio.png" alt="Convelio" class="inline-block h-4" />&#160;<span
-					class="sm:hover:underline">Convelio</span
-				>
-			</a>.
+<Base meta={meta} searchHint>
+	<section class="hero">
+		<StatusPill label="Available for interesting conversations" />
+		<h1>
+			Fullstack engineer,<br />
+			<span class="muted">for the web</span><br />
+			building with care.
+		</h1>
+		<p class="hero-sub">
+			I'm Quentin. I build for the web, read more books than I finish, and occasionally write about
+			what I learn.
 		</p>
-		<SocialList />
+		<div class="hero-meta">
+			<a href="https://github.com/qdelettre" target="_blank" rel="noopener noreferrer">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.75"
+					aria-hidden="true"
+				>
+					<path
+						d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+					></path>
+				</svg>
+				github
+			</a>
+			<span class="sep">·</span>
+			<a href="/rss.xml">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.75"
+					aria-hidden="true"
+				>
+					<path d="M4 11a9 9 0 0 1 9 9"></path>
+					<path d="M4 4a16 16 0 0 1 16 16"></path>
+					<circle cx="5" cy="19" r="1"></circle>
+				</svg>
+				rss
+			</a>
+			<span class="sep">·</span>
+			<a href="mailto:quentin.delettre@pm.me">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.75"
+					aria-hidden="true"
+				>
+					<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+					></path>
+					<polyline points="22,6 12,13 2,6"></polyline>
+				</svg>
+				email
+			</a>
+		</div>
 	</section>
-	<section aria-label="Blog post list" class="mt-16">
-		<h2 class="title mb-4 text-xl">Recent Posts</h2>
-		<ul class="space-y-4 sm:space-y-2">
+
+	<section class="block">
+		<div class="block-head">
+			<h2 class="t-eyebrow">Writing</h2>
+			<span class="rule"></span>
+			<a href="/posts/" class="more">All posts →</a>
+		</div>
+		{
+			enrichedPosts.map(({ post, readingTime }) => (
+				<PostRow post={post} variant="home" readingTime={readingTime} />
+			))
+		}
+	</section>
+
+	<section class="block">
+		<div class="block-head">
+			<h2 class="t-eyebrow">Now</h2>
+			<span class="rule"></span>
+		</div>
+		<div class="now-grid">
+			<NowCard label="Working on" headline="Fullstack at Convelio">
+				Shipping interfaces for art logistics. TypeScript, PHP, and a growing appreciation for
+				boring technology.
+			</NowCard>
+			<NowCard label="Learning" headline="AI, Astro & Rust" dotColor="var(--emerald)">
+				Taming Claude code, LLMs or new shiny things. Sometimes it clicks.
+			</NowCard>
+		</div>
+	</section>
+
+	<section class="block">
+		<div class="block-head">
+			<h2 class="t-eyebrow">Stack</h2>
+			<span class="rule"></span>
+		</div>
+		<div class="stack">
 			{
-				allPostsByDate.map((p) => (
-					<li class="flex flex-col gap-x-2 sm:flex-row">
-						<PostPreview post={p} />
-					</li>
+				stack.map((item) => (
+					<span class="chip">
+						<span class="dot" style={`background:${tagColorVar(item.tag)}`} />
+						{item.label}
+					</span>
 				))
 			}
-		</ul>
+		</div>
 	</section>
-</PageLayout>
+</Base>
+
+<style>
+	.hero {
+		padding: var(--space-sm) 0 var(--space-md);
+	}
+	.hero h1 {
+		font-family: var(--font-sans);
+		font-size: var(--text-4xl);
+		font-weight: 510;
+		line-height: 1.02;
+		letter-spacing: -1.056px;
+		color: var(--fg1);
+		font-feature-settings: "cv01", "ss03";
+		margin: 24px 0 20px;
+	}
+	.hero h1 .muted {
+		color: var(--fg3);
+	}
+	.hero-sub {
+		font-family: var(--font-sans);
+		font-size: var(--text-lg);
+		font-weight: 400;
+		line-height: 1.55;
+		letter-spacing: -0.165px;
+		color: var(--fg2);
+		margin: 0 0 28px;
+		max-width: 620px;
+	}
+	.hero-meta {
+		display: flex;
+		gap: 20px;
+		align-items: center;
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 510;
+		color: var(--fg3);
+	}
+	.hero-meta a {
+		color: var(--fg2);
+		text-decoration: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		transition: color 120ms;
+	}
+	.hero-meta a:hover {
+		color: var(--fg1);
+	}
+	.hero-meta .sep {
+		color: var(--fg4);
+	}
+	section.block {
+		margin-top: var(--space-2xl);
+	}
+	.block-head {
+		display: flex;
+		align-items: baseline;
+		gap: 14px;
+		margin-bottom: 20px;
+	}
+	.block-head .rule {
+		flex: 1;
+		height: 1px;
+		background: var(--line-subtle);
+	}
+	.block-head .more {
+		font-family: var(--font-sans);
+		font-size: var(--text-xs);
+		font-weight: 510;
+		color: var(--fg3);
+		text-decoration: none;
+		transition: color 120ms;
+	}
+	.block-head .more:hover {
+		color: var(--accent-hover);
+	}
+	.now-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+		gap: var(--space-sm);
+	}
+	.stack {
+		display: flex;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+	.chip {
+		background: var(--surface-02);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-md);
+		padding: 4px 10px;
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		font-weight: 510;
+		color: var(--fg2);
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.chip .dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+</style>

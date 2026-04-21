@@ -1,70 +1,97 @@
 ---
-import { getAllPosts, getUniqueTags } from "@/data/post";
-import type { Page, GetStaticPaths } from "astro";
-import type { CollectionEntry } from "astro:content";
-import PageLayout from "@/layouts/Base.astro";
-import PostPreview from "@/components/blog/PostPreview.astro";
-import Pagination from "@/components/Paginator.astro";
-import { collectionDateSort } from "@/utils/date";
+import type { GetStaticPaths, Page } from "astro";
+import { render } from "astro:content";
 
-export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+import Base from "@/layouts/Base.astro";
+import PostRow from "@/components/PostRow.astro";
+import { getAllPosts, getUniqueTags, type Post } from "@/data/post";
+
+export const getStaticPaths = (async ({ paginate }) => {
 	const allPosts = await getAllPosts();
-	const allPostsByDate = allPosts.sort(collectionDateSort);
-	const uniqueTags = getUniqueTags(allPostsByDate);
-
-	return uniqueTags.flatMap((tag) => {
-		const filterPosts = allPostsByDate.filter((post) => post.data.tags.includes(tag));
-		return paginate(filterPosts, {
-			params: { tag },
-			pageSize: 10,
-		});
+	const tags = getUniqueTags(allPosts);
+	return tags.flatMap((tag) => {
+		const tagPosts = allPosts.filter((p) => p.data.tags.includes(tag));
+		return paginate(tagPosts, { params: { tag }, props: { tag }, pageSize: 10 });
 	});
-};
+}) satisfies GetStaticPaths;
 
 interface Props {
-	page: Page<CollectionEntry<"post">>;
+	page: Page<Post>;
+	tag: string;
 }
+const { page, tag } = Astro.props;
 
-const { page } = Astro.props;
-const { tag } = Astro.params;
+const rows = await Promise.all(
+	page.data.map(async (p) => ({
+		post: p,
+		readingTime: (await render(p)).remarkPluginFrontmatter?.readingTime,
+	})),
+);
 
 const meta = {
-	title: `Tag: ${tag}`,
-	description: `View all posts with the tag - ${tag}`,
-};
-
-const paginationProps = {
-	...(page.url.prev && {
-		prevUrl: {
-			url: page.url.prev,
-			text: `← Previous Tags`,
-		},
-	}),
-	...(page.url.next && {
-		nextUrl: {
-			url: page.url.next,
-			text: `Next Tags →`,
-		},
-	}),
+	title: `Posts tagged #${tag}`,
+	description: `All posts tagged with ${tag}.`,
 };
 ---
 
-<PageLayout meta={meta}>
-	<h1 class="title mb-6 flex items-center">
-		<a href="/tags/" class="text-accent sm:hover:underline">Tags</a>
-		<span class="me-3 ms-2">→</span>
-		<span class="text-xl">#{tag}</span>
-	</h1>
-	<section aria-label="Blog post list">
-		<ul class="space-y-8">
-			{
-				page.data.map((p) => (
-					<li class="flex flex-col flex-wrap gap-2 sm:flex-row [&_q]:basis-full">
-						<PostPreview post={p} as="h2" withDesc />
-					</li>
-				))
-			}
-		</ul>
-		<Pagination {...paginationProps} />
+<Base meta={meta}>
+	<section class="page-head">
+		<div class="t-eyebrow t-eyebrow--accent">Tag</div>
+		<h1>#{tag}</h1>
+		<p class="lede">{page.total} post{page.total === 1 ? "" : "s"}.</p>
 	</section>
-</PageLayout>
+
+	{
+		rows.map(({ post, readingTime }) => (
+			<PostRow post={post} variant="index" readingTime={readingTime} />
+		))
+	}
+
+	{
+		(page.url.prev || page.url.next) && (
+			<nav class="pager">
+				{page.url.prev ? <a href={page.url.prev}>← newer</a> : <span />}
+				{page.url.next ? <a href={page.url.next}>older →</a> : <span />}
+			</nav>
+		)
+	}
+</Base>
+
+<style>
+	.page-head {
+		margin-bottom: 36px;
+	}
+	.page-head h1 {
+		font-family: var(--font-sans);
+		font-size: var(--text-4xl);
+		font-weight: 510;
+		line-height: 1.02;
+		letter-spacing: -1.056px;
+		color: var(--fg1);
+		font-feature-settings: "cv01", "ss03";
+		margin: 12px 0 16px;
+	}
+	.page-head .lede {
+		font-family: var(--font-sans);
+		font-size: var(--text-lg);
+		color: var(--fg3);
+		margin: 0;
+	}
+	.pager {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 32px;
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 510;
+		color: var(--fg3);
+	}
+	.pager a {
+		color: var(--fg3);
+		text-decoration: none;
+		transition: color 120ms;
+	}
+	.pager a:hover {
+		color: var(--fg1);
+	}
+</style>

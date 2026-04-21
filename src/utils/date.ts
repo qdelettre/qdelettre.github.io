@@ -1,22 +1,23 @@
 import { siteConfig } from "@/site.config";
-import type { CollectionEntry } from "astro:content";
 
-const dateFormat = new Intl.DateTimeFormat(siteConfig.date.locale, siteConfig.date.options);
-
-export function getFormattedDate(
-	date: string | number | Date,
-	options?: Intl.DateTimeFormatOptions,
-) {
-	if (typeof options !== "undefined") {
-		return new Date(date).toLocaleDateString(siteConfig.date.locale, {
-			...(siteConfig.date.options as Intl.DateTimeFormatOptions),
-			...options,
-		});
-	}
-
-	return dateFormat.format(new Date(date));
+export function getFormattedDate(date: Date, options?: Intl.DateTimeFormatOptions): string {
+	return new Intl.DateTimeFormat(siteConfig.date.locale, {
+		...siteConfig.date.options,
+		...options,
+	}).format(date);
 }
 
-export function collectionDateSort(a: CollectionEntry<"post">, b: CollectionEntry<"post">) {
-	return b.data.publishDate.getTime() - a.data.publishDate.getTime();
+export function getIsoDate(date: Date): string {
+	return date.toISOString().slice(0, 10);
+}
+
+export function getMonoDate(date: Date): string {
+	const y = date.getFullYear();
+	const m = String(date.getMonth() + 1).padStart(2, "0");
+	const d = String(date.getDate()).padStart(2, "0");
+	return `${y}.${m}.${d}`;
+}
+
+export function getShortDate(date: Date): string {
+	return new Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit" }).format(date);
 }

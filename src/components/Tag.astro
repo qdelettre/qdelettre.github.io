@@ -1,0 +1,65 @@
+---
+import { tagColorVar } from "@/utils/tag-color";
+
+export interface Props {
+	name: string;
+	as?: "a" | "span";
+	count?: number;
+}
+
+const { name, as = "a", count } = Astro.props;
+const color = tagColorVar(name);
+---
+
+{
+	as === "a" ? (
+		<a class="tag" href={`/tags/${name}/`}>
+			<span class="swatch" style={`background:${color}`} />
+			{name}
+			{count !== undefined && <span class="num">{count}</span>}
+		</a>
+	) : (
+		<span class="tag">
+			<span class="swatch" style={`background:${color}`} />
+			{name}
+			{count !== undefined && <span class="num">{count}</span>}
+		</span>
+	)
+}
+
+<style>
+	.tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: transparent;
+		border: 1px solid var(--border-1);
+		border-radius: var(--radius-pill);
+		padding: 1px 10px 1px 8px;
+		font-family: var(--font-sans);
+		font-size: var(--text-2xs);
+		font-weight: 510;
+		color: var(--fg2);
+		text-decoration: none;
+		transition:
+			background 120ms,
+			transform 120ms;
+	}
+	a.tag:hover {
+		background: var(--surface-03);
+		color: var(--fg1);
+	}
+	a.tag:active {
+		transform: scale(0.96);
+	}
+	.swatch {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+	.num {
+		color: var(--fg4);
+		font-weight: 400;
+		margin-left: 4px;
+	}
+</style>

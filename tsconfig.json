@@ -2,7 +2,7 @@
 	"extends": "astro/tsconfigs/strictest",
 	"compilerOptions": {
 		"baseUrl": ".",
-		"lib": ["DOM"],
+		"lib": ["DOM", "DOM.Iterable", "ESNext"],
 		"paths": {
 			"@/*": ["src/*"]
 		}

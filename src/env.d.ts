@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/triple-slash-reference */
-/// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
 
-declare module "@pagefind/default-ui" {
-	declare class PagefindUI {
-		constructor(arg: unknown);
+declare module "*pagefind.js" {
+	interface PagefindItem {
+		url: string;
+		excerpt: string;
+		meta?: { title?: string; date?: string };
 	}
-}
-
-interface ImportMetaEnv {}
-
-interface ImportMeta {
-	readonly env: ImportMetaEnv;
+	interface PagefindResult {
+		data(): Promise<PagefindItem>;
+	}
+	export function init(): Promise<void>;
+	export function debouncedSearch(query: string): Promise<{ results: PagefindResult[] }>;
 }
