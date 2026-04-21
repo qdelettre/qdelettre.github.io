@@ -1,11 +1,13 @@
-import { toString as mdastToString } from "mdast-util-to-string";
+import type { RemarkPlugin } from "@astrojs/markdown-remark";
 import getReadingTime from "reading-time";
+import { toString } from "mdast-util-to-string";
 
-export function remarkReadingTime() {
-	// @ts-expect-error:next-line
-	return (tree, { data }) => {
-		const textOnPage = mdastToString(tree);
+export const remarkReadingTime: RemarkPlugin = () => {
+	return (tree, file) => {
+		const textOnPage = toString(tree);
 		const readingTime = getReadingTime(textOnPage);
-		data.astro.frontmatter.readingTime = readingTime.text;
+		file.data.astro ??= {};
+		file.data.astro.frontmatter ??= {};
+		file.data.astro.frontmatter.readingTime = readingTime.text;
 	};
-}
+};

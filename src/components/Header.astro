@@ -1,0 +1,168 @@
+---
+import { menuLinks, siteConfig } from "@/site.config";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+
+const path = Astro.url.pathname;
+
+// Active when the current pathname equals the link, or (for non-root links)
+// starts with the link path. Relies on link paths carrying a trailing slash —
+// enforced by the `MenuLink.path` convention in site.config.ts.
+function isActive(linkPath: string): boolean {
+	if (linkPath === "/") return path === "/";
+	return path === linkPath || path.startsWith(linkPath);
+}
+---
+
+<header class="site">
+	<div class="brand-wrap">
+		<a class="brand" href="/" aria-label={siteConfig.title}>
+			<span class="brand-mark" aria-hidden="true" transition:name="brand-mark">
+				<svg width="22" height="22" viewBox="0 0 32 32">
+					<circle
+						cx="16"
+						cy="16"
+						r="15.5"
+						fill="#18191d"
+						stroke="rgba(255,255,255,0.08)"
+						stroke-width="1"></circle>
+					<text
+						x="16"
+						y="20"
+						text-anchor="middle"
+						fill="#f7f8f8"
+						font-family="ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace"
+						font-size="13"
+						font-weight="500"
+						letter-spacing="-0.5">qd</text
+					>
+				</svg>
+			</span>
+			<span class="brand-wordmark">{siteConfig.title}</span>
+		</a>
+		<span class="status-dot-link" aria-hidden="true" transition:name="brand-status-dot">
+			<span class="dot status-dot-halo"></span>
+		</span>
+	</div>
+	<nav class="site-nav" aria-label="Main menu">
+		{
+			menuLinks.map((link) => (
+				<a href={link.path} class={isActive(link.path) ? "active" : ""}>
+					{link.title}
+				</a>
+			))
+		}
+		<ThemeToggle />
+	</nav>
+</header>
+
+<script>
+	import { isOfficeHoursNow } from "@/utils/office-hours";
+
+	function reconcileOfficeHours() {
+		document.documentElement.setAttribute(
+			"data-office-hours",
+			isOfficeHoursNow() ? "open" : "closed",
+		);
+	}
+
+	// Inline FOUC script in BaseHead.astro sets the attribute on first paint.
+	// astro:after-swap re-runs on every soft-nav arrival so the dot flips if
+	// the reader crossed a schedule boundary during navigation.
+	document.addEventListener("astro:after-swap", reconcileOfficeHours);
+</script>
+
+<style>
+	header.site {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-md);
+		row-gap: var(--space-sm);
+		padding-top: var(--space-md);
+		padding-bottom: var(--space-lg);
+		margin-bottom: 0;
+	}
+	.brand-wrap {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+	}
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding-block: 1px;
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 510;
+		color: var(--fg1);
+		letter-spacing: -0.2px;
+		text-decoration: none;
+	}
+	.brand-mark {
+		width: 22px;
+		height: 22px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.brand-mark svg {
+		display: block;
+	}
+	.status-dot-link {
+		position: absolute;
+		bottom: -1px;
+		left: 16px;
+		width: 10px;
+		height: 10px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		text-decoration: none;
+	}
+	.status-dot-link .dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		box-shadow: 0 0 0 2px var(--bg-app);
+	}
+	nav.site-nav {
+		display: flex;
+		gap: 20px;
+		margin-left: auto;
+	}
+	nav.site-nav a {
+		position: relative;
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 510;
+		color: var(--fg2);
+		text-decoration: none;
+		transition:
+			color 120ms ease-out,
+			transform 120ms;
+		padding: 13px 8px;
+		margin: -13px -8px;
+	}
+	nav.site-nav a:active {
+		transform: scale(0.96);
+	}
+	nav.site-nav a:hover {
+		color: var(--fg1);
+	}
+	nav.site-nav a.active {
+		color: var(--fg1);
+		font-weight: 600;
+	}
+	nav.site-nav a.active::after {
+		content: "";
+		position: absolute;
+		left: 8px;
+		right: 8px;
+		bottom: 7px;
+		height: 2px;
+		background: var(--accent);
+		border-radius: 1px;
+	}
+</style>

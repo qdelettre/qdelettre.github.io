@@ -1,36 +1,52 @@
 ---
-import { getAllPosts, getUniqueTagsWithCount } from "@/data/post";
+import Base from "@/layouts/Base.astro";
+import Tag from "@/components/Tag.astro";
+import { getAllPosts, getTagCounts } from "@/data/post";
 
-import PageLayout from "@/layouts/Base.astro";
-
-const allPosts = await getAllPosts();
-const allTags = getUniqueTagsWithCount(allPosts);
+const posts = await getAllPosts();
+const tags = getTagCounts(posts);
 
 const meta = {
-	title: "All Tags",
-	description: "A list of all the topics I've written about in my posts",
+	title: "Tags",
+	description: "Post archives by tag.",
 };
 ---
 
-<PageLayout meta={meta}>
-	<h1 class="title mb-6">Tags</h1>
-	<ul class="space-y-4">
-		{
-			allTags.map(([tag, val]) => (
-				<li class="flex items-center gap-x-2">
-					<a
-						class="cactus-link inline-block"
-						href={`/tags/${tag}/`}
-						title={`View posts with the tag: ${tag}`}
-						data-astro-prefetch
-					>
-						&#35;{tag}
-					</a>
-					<span class="inline-block">
-						- {val} Post{val > 1 && "s"}
-					</span>
-				</li>
-			))
-		}
-	</ul>
-</PageLayout>
+<Base meta={meta}>
+	<section class="page-head">
+		<div class="t-eyebrow t-eyebrow--accent">Tags</div>
+		<h1>All tags</h1>
+		<p class="lede">Browse posts by topic.</p>
+	</section>
+
+	<div class="tag-list">
+		{tags.map(([name, count]) => <Tag name={name} as="a" count={count} />)}
+	</div>
+</Base>
+
+<style>
+	.page-head {
+		margin-bottom: 36px;
+	}
+	.page-head h1 {
+		font-family: var(--font-sans);
+		font-size: var(--text-4xl);
+		font-weight: 510;
+		line-height: 1.02;
+		letter-spacing: -1.056px;
+		color: var(--fg1);
+		font-feature-settings: "cv01", "ss03";
+		margin: 12px 0 16px;
+	}
+	.page-head .lede {
+		font-family: var(--font-sans);
+		font-size: var(--text-lg);
+		color: var(--fg3);
+		margin: 0;
+	}
+	.tag-list {
+		display: flex;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+</style>

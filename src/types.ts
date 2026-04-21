@@ -1,25 +1,33 @@
-export type SiteConfig = {
+export interface SiteConfig {
 	author: string;
 	title: string;
 	description: string;
 	lang: string;
 	ogLocale: string;
 	date: {
-		locale: string | string[] | undefined;
+		locale: string;
 		options: Intl.DateTimeFormatOptions;
 	};
-	includeViewTransitions: boolean;
-};
+	tagColors: Record<string, TagColorKey>;
+	socials: {
+		github: string;
+	};
+	ogImageDefault: string;
+}
 
-export type PaginationLink = {
-	url: string;
-	text?: string;
-	srLabel?: string;
-};
+export type TagColorKey =
+	| "blue"
+	| "iris"
+	| "violet"
+	| "red"
+	| "amber"
+	| "emerald"
+	| "cyan"
+	| "slate";
 
-export type SiteMeta = {
+export interface MenuLink {
 	title: string;
-	description?: string;
-	ogImage?: string | undefined;
-	articleDate?: string | undefined;
-};
+	/** Must include a trailing slash (except the root `/`). The Header's
+	 * isActive check relies on this invariant to avoid false prefix matches. */
+	path: string;
+}

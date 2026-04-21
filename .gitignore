@@ -28,3 +28,14 @@ pnpm-debug.log*
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.lighthouseci/
+
+# docs
+docs/*
+!docs/design-system
+!docs/agents
+
+# ai
+.claude/settings.local.json
+.claude/skills
+.agents/

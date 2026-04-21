@@ -1,103 +1,198 @@
+---
+// Three-state theme toggle. Cycle: light → dark → system → light.
+// State is read from <html data-theme>; "system" = absent attribute.
+// The inline FOUC script in BaseHead applies a stored override before this
+// component hydrates, so the visible icon matches first paint.
+---
+
+<button
+	class="theme-toggle"
+	type="button"
+	data-theme-state="system"
+	aria-label="Theme: System — click for Light"
+>
+	<svg
+		class="icon icon-sun"
+		width="16"
+		height="16"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="1.6"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		aria-hidden="true"
+	>
+		<circle cx="12" cy="12" r="4"></circle>
+		<path
+			d="M12 2v2 M12 20v2 M2 12h2 M20 12h2 M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M4.93 19.07l1.41-1.41 M17.66 6.34l1.41-1.41"
+		></path>
+	</svg>
+	<svg
+		class="icon icon-moon"
+		width="16"
+		height="16"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="1.6"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		aria-hidden="true"
+	>
+		<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+	</svg>
+	<svg
+		class="icon icon-system"
+		width="16"
+		height="16"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		stroke-width="1.6"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		aria-hidden="true"
+	>
+		<circle cx="12" cy="12" r="9"></circle>
+		<path d="M12 3v18"></path>
+		<path d="M12 3a9 9 0 0 0 0 18" fill="currentColor"></path>
+	</svg>
+</button>
+
 <script>
-	import { rootHasDarkClass } from "@/utils";
+	type ThemeState = "light" | "dark" | "system";
 
-	class ThemeToggle extends HTMLElement {
-		constructor() {
-			super();
-			const button = this.querySelector("button") as HTMLButtonElement;
-			const root = document.documentElement;
+	const cycle: Record<ThemeState, ThemeState> = {
+		light: "dark",
+		dark: "system",
+		system: "light",
+	};
 
-			if (button) {
-				// set inital aria-pressed value
-				button.setAttribute("aria-pressed", String(rootHasDarkClass()));
+	function readState(): ThemeState {
+		const v = document.documentElement.dataset.theme;
+		return v === "light" || v === "dark" ? v : "system";
+	}
 
-				// MutationObserver for html class changes, as the theme could be changed elsewhere
-				const observer = new MutationObserver((mutationsList) => {
-					for (const mutation of mutationsList) {
-						if (mutation.type === "attributes" && mutation.attributeName === "class") {
-							const rootIsDark = (mutation.target as Element).classList.contains("dark");
-							button.setAttribute("aria-pressed", String(rootIsDark));
-						}
-					}
-				});
-				observer.observe(root, { attributeFilter: ["class"] });
+	function resolvedScheme(): "light" | "dark" {
+		const s = readState();
+		if (s !== "system") return s;
+		return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+	}
 
-				// button clicked, fire event
-				button.addEventListener("click", (e) => {
-					if (e.currentTarget instanceof HTMLButtonElement) {
-						let isDark = rootHasDarkClass();
+	function syncMetaThemeColor(): void {
+		const scheme = resolvedScheme();
+		const color = scheme === "dark" ? "#08090a" : "#f7f8f8";
+		document
+			.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+			.forEach((m) => m.setAttribute("content", color));
+	}
 
-						// invert theme
-						let themeChangeEvent = new CustomEvent("theme-change", {
-							detail: {
-								theme: isDark ? "light" : "dark",
-							},
-						});
-						// dispatch event -> ThemeProvider.astro
-						document.dispatchEvent(themeChangeEvent);
-					}
-				});
+	function titleCase(s: string): string {
+		return s.charAt(0).toUpperCase() + s.slice(1);
+	}
+
+	function updateButton(): void {
+		const btn = document.querySelector<HTMLButtonElement>(".theme-toggle");
+		if (!btn) return;
+		const current = readState();
+		const next = cycle[current];
+		btn.dataset.themeState = current;
+		btn.setAttribute("aria-label", `Theme: ${titleCase(current)} — click for ${titleCase(next)}`);
+	}
+
+	function applyTheme(state: ThemeState): void {
+		if (state === "system") {
+			document.documentElement.removeAttribute("data-theme");
+			localStorage.removeItem("theme");
+		} else {
+			document.documentElement.setAttribute("data-theme", state);
+			localStorage.setItem("theme", state);
+		}
+		updateButton();
+		syncMetaThemeColor();
+	}
+
+	function handleClick(): void {
+		applyTheme(cycle[readState()]);
+	}
+
+	function applyStoredTheme(): void {
+		try {
+			const stored = localStorage.getItem("theme");
+			if (stored === "light" || stored === "dark") {
+				document.documentElement.setAttribute("data-theme", stored);
+			} else {
+				document.documentElement.removeAttribute("data-theme");
 			}
+		} catch {
+			/* localStorage unavailable — fall back to OS preference. */
 		}
 	}
 
-	customElements.define("theme-toggle", ThemeToggle);
+	function attach(): void {
+		applyStoredTheme();
+		const btn = document.querySelector<HTMLButtonElement>(".theme-toggle");
+		if (!btn) return;
+		updateButton();
+		syncMetaThemeColor();
+		btn.addEventListener("click", handleClick);
+	}
+
+	attach();
+	document.addEventListener("astro:after-swap", attach);
+
+	window.addEventListener("storage", (e) => {
+		if (e.key !== "theme") return;
+		const v = e.newValue;
+		if (v === "light" || v === "dark") {
+			document.documentElement.setAttribute("data-theme", v);
+		} else {
+			document.documentElement.removeAttribute("data-theme");
+		}
+		updateButton();
+		syncMetaThemeColor();
+	});
+
+	window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+		syncMetaThemeColor();
+	});
 </script>
 
-<theme-toggle class="ms-2 sm:ms-4">
-	<button
-		type="button"
-		id="toggle-theme"
-		class="relative h-9 w-9 rounded-md p-2 ring-zinc-400 transition-all hover:ring-2"
-		aria-label="Toggle Dark Mode"
-	>
-		<svg
-			id="sun-svg"
-			class="absolute start-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 scale-100 opacity-100 transition-all dark:scale-0 dark:opacity-0"
-			aria-hidden="true"
-			focusable="false"
-			stroke-width="1.5"
-			viewBox="0 0 24 24"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<path
-				d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z"
-				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"></path>
-			<path d="M22 12L23 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-			></path>
-			<path d="M12 2V1" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
-			<path d="M12 23V22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-			></path>
-			<path d="M20 20L19 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-			></path>
-			<path d="M20 4L19 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-			></path>
-			<path d="M4 20L5 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-			></path>
-			<path d="M4 4L5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-			></path>
-			<path d="M1 12L2 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-			></path>
-		</svg>
-		<svg
-			id="moon-svg"
-			class="absolute start-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 scale-0 opacity-0 transition-all dark:scale-100 dark:opacity-100"
-			aria-hidden="true"
-			focusable="false"
-			stroke="currentColor"
-			stroke-width="1.5"
-			viewBox="0 0 24 24"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-			<path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"
-			></path>
-			<path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"></path>
-			<path d="M19 11h2m-1 -1v2"></path>
-		</svg>
-	</button>
-</theme-toggle>
+<style>
+	.theme-toggle {
+		position: relative;
+		width: 28px;
+		height: 28px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: transparent;
+		border: 1px solid var(--line-subtle);
+		border-radius: var(--radius-md);
+		color: var(--fg3);
+		cursor: pointer;
+		padding: 0;
+		transition:
+			color 120ms,
+			border-color 120ms,
+			transform 120ms;
+	}
+	.theme-toggle:hover {
+		color: var(--fg1);
+		border-color: var(--line);
+	}
+	.theme-toggle:active {
+		transform: scale(0.96);
+	}
+	.theme-toggle .icon {
+		position: absolute;
+		opacity: 0;
+		transition: opacity 120ms cubic-bezier(0.2, 0, 0, 1);
+	}
+	.theme-toggle[data-theme-state="light"] .icon-sun,
+	.theme-toggle[data-theme-state="dark"] .icon-moon,
+	.theme-toggle[data-theme-state="system"] .icon-system {
+		opacity: 1;
+	}
+</style>

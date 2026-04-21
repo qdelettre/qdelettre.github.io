@@ -1,31 +1,36 @@
 import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
-/** Note: this function filters out draft posts based on the environment */
+export type Post = CollectionEntry<"post">;
+
 export async function getAllPosts() {
-	return await getCollection("post", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+	const posts: Post[] = await getCollection("post", ({ data }: Post) =>
+		import.meta.env.PROD ? data.draft !== true : true,
+	);
+	return posts.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 }
 
-/** Note: This function doesn't filter draft posts, pass it the result of getAllPosts above to do so. */
-export function getAllTags(posts: Array<CollectionEntry<"post">>) {
-	return posts.flatMap((post) => [...post.data.tags]);
+export function getAllTags(posts: Post[]): string[] {
+	return posts.flatMap((p) => p.data.tags);
 }
 
-/** Note: This function doesn't filter draft posts, pass it the result of getAllPosts above to do so. */
-export function getUniqueTags(posts: Array<CollectionEntry<"post">>) {
+export function getUniqueTags(posts: Post[]): string[] {
 	return [...new Set(getAllTags(posts))];
 }
 
-/** Note: This function doesn't filter draft posts, pass it the result of getAllPosts above to do so. */
-export function getUniqueTagsWithCount(
-	posts: Array<CollectionEntry<"post">>,
-): Array<[string, number]> {
-	return [
-		...getAllTags(posts).reduce(
-			(acc, t) => acc.set(t, (acc.get(t) || 0) + 1),
-			new Map<string, number>(),
-		),
-	].sort((a, b) => b[1] - a[1]);
+export function getTagCounts(posts: Post[]): Array<[string, number]> {
+	const m = new Map<string, number>();
+	for (const t of getAllTags(posts)) m.set(t, (m.get(t) ?? 0) + 1);
+	return [...m.entries()].sort((a, b) => b[1] - a[1]);
+}
+
+export function groupByYear(posts: Post[]): Array<{ year: number; posts: Post[] }> {
+	const map = new Map<number, Post[]>();
+	for (const p of posts) {
+		const y = p.data.publishDate.getFullYear();
+		const arr = map.get(y) ?? [];
+		arr.push(p);
+		map.set(y, arr);
+	}
+	return [...map.entries()].sort((a, b) => b[0] - a[0]).map(([year, posts]) => ({ year, posts }));
 }

@@ -1,17 +1,11 @@
-import type { SiteConfig } from "@/types";
+import type { MenuLink, SiteConfig } from "@/types";
 
 export const siteConfig: SiteConfig = {
-	// Used as both a meta property (src/components/BaseHead.astro L:31 + L:49) & the generated satori png (src/pages/og-image/[slug].png.ts)
 	author: "Quentin Delettre",
-	// Meta property used to construct the meta title property, found in src/components/BaseHead.astro L:11
 	title: "Quentin Delettre",
-	// Meta property used as the default description meta property
-	description: "Humble developer, passionate about the web and its technologies.",
-	// HTML lang property, found in src/layouts/Base.astro L:18
+	description: "Fullstack engineer, for the web, building with care",
 	lang: "en-GB",
-	// Meta property, found in src/components/BaseHead.astro L:42
 	ogLocale: "en_GB",
-	// Date.prototype.toLocaleDateString() parameters, found in src/utils/date.ts.
 	date: {
 		locale: "en-GB",
 		options: {
@@ -20,22 +14,25 @@ export const siteConfig: SiteConfig = {
 			year: "numeric",
 		},
 	},
-	// Include view-transitions: https://docs.astro.build/en/guides/view-transitions/
-	includeViewTransitions: true,
+	tagColors: {
+		typescript: "blue",
+		php: "iris",
+		astro: "violet",
+		angular: "red",
+		claude: "amber",
+		git: "slate",
+		ci: "cyan",
+		books: "emerald",
+		test: "iris",
+	},
+	socials: {
+		github: "https://github.com/qdelettre",
+	},
+	ogImageDefault: "/og-image/default.png",
 };
 
-// Used to generate links in both the Header & Footer.
-export const menuLinks: Array<{ title: string; path: string }> = [
-	{
-		title: "Home",
-		path: "/",
-	},
-	{
-		title: "About",
-		path: "/about/",
-	},
-	{
-		title: "Blog",
-		path: "/posts/",
-	},
+export const menuLinks: MenuLink[] = [
+	{ title: "Home", path: "/" },
+	{ title: "About", path: "/about/" },
+	{ title: "Blog", path: "/posts/" },
 ];

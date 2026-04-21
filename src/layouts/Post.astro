@@ -1,0 +1,84 @@
+---
+import Base from "@/layouts/Base.astro";
+import Tag from "@/components/Tag.astro";
+import FormattedDate from "@/components/FormattedDate.astro";
+import type { Post } from "@/data/post";
+import { shouldShowReadingTime } from "@/utils/reading-time";
+
+interface Props {
+	post: Post;
+	readingTime?: string;
+}
+const { post, readingTime } = Astro.props;
+
+const meta = {
+	title: post.data.title,
+	description: post.data.description,
+	ogImage: post.data.ogImage ?? `/og-image/${post.id}.png`,
+	articleDate: post.data.publishDate.toISOString(),
+};
+---
+
+<Base meta={meta}>
+	<a class="back" href="/posts/">← posts</a>
+	<div class="post-meta">
+		<span transition:name={`post-date-${post.id}`}>
+			<FormattedDate date={post.data.publishDate} />
+		</span>
+		<span class="sep">·</span>
+		{
+			post.data.tags.map((tag: string, i: number) =>
+				i === 0 ? <Tag name={tag} transition:name={`post-tag-${post.id}`} /> : <Tag name={tag} />,
+			)
+		}
+		{shouldShowReadingTime(readingTime) && <span class="read">{readingTime}</span>}
+	</div>
+	<h1 class="t-display" transition:name={`post-title-${post.id}`}>{post.data.title}</h1>
+	<p class="t-lede">{post.data.description}</p>
+	<hr class="rule" />
+	<article class="prose">
+		<slot />
+	</article>
+</Base>
+
+<style>
+	.back {
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		color: var(--fg3);
+		text-decoration: none;
+		display: inline-block;
+		margin-bottom: 24px;
+	}
+	.back:hover {
+		color: var(--fg1);
+	}
+	.post-meta {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: var(--fg4);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		font-variant-numeric: tabular-nums;
+		margin-bottom: 16px;
+	}
+	.post-meta .sep {
+		color: var(--fg4);
+	}
+	.post-meta .read {
+		margin-left: auto;
+	}
+	h1.t-display {
+		margin: 0 0 12px;
+		color: var(--fg1);
+	}
+	p.t-lede {
+		margin: 0 0 32px;
+	}
+	.rule {
+		border: none;
+		border-top: 1px solid var(--line-subtle);
+		margin: 0 0 32px;
+	}
+</style>

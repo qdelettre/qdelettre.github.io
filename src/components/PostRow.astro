@@ -1,0 +1,30 @@
+---
+import { getMonoDate, getShortDate } from "@/utils/date";
+import Tag from "@/components/Tag.astro";
+import type { Post } from "@/data/post";
+import { shouldShowReadingTime } from "@/utils/reading-time";
+
+interface Props {
+	post: Post;
+	variant?: "home" | "index";
+	readingTime?: string;
+}
+
+const { post, variant = "home", readingTime } = Astro.props;
+const href = `/posts/${post.id}/`;
+const firstTag = post.data.tags[0];
+const dateLabel =
+	variant === "home" ? getMonoDate(post.data.publishDate) : getShortDate(post.data.publishDate);
+---
+
+<a class={`post-row ${variant}`} href={href} data-testid="post-row">
+	<span class="date" transition:name={`post-date-${post.id}`}>{dateLabel}</span>
+	<div class="main">
+		<div class="title" transition:name={`post-title-${post.id}`}>{post.data.title}</div>
+		<div class="desc">{post.data.description}</div>
+	</div>
+	<div class="post-meta">
+		{firstTag && <Tag name={firstTag} as="span" transition:name={`post-tag-${post.id}`} />}
+		{shouldShowReadingTime(readingTime) && <span class="read">{readingTime}</span>}
+	</div>
+</a>

@@ -1,75 +1,131 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import type { APIContext, GetStaticPaths, InferGetStaticPropsType } from "astro";
 import satori, { type SatoriOptions } from "satori";
 import { html } from "satori-html";
 import { Resvg } from "@resvg/resvg-js";
 
-import RobotoMono from "@/assets/roboto-mono-regular.ttf";
-import RobotoMonoBold from "@/assets/roboto-mono-700.ttf";
-import { siteConfig } from "@/site.config";
 import { getAllPosts } from "@/data/post";
 import { getFormattedDate } from "@/utils/date";
+import { tagColorHex } from "@/utils/tag-color";
+
+function loadFont(rel: string): Buffer {
+	const full = path.join(process.cwd(), "node_modules", rel);
+	return fs.readFileSync(full);
+}
 
 const ogOptions: SatoriOptions = {
 	width: 1200,
 	height: 630,
-	// debug: true,
 	fonts: [
 		{
-			name: "Roboto Mono",
-			data: Buffer.from(RobotoMono),
-			weight: 400,
+			name: "Inter",
+			weight: 500,
 			style: "normal",
+			data: loadFont("@fontsource/inter/files/inter-latin-500-normal.woff"),
 		},
 		{
-			name: "Roboto Mono",
-			data: Buffer.from(RobotoMonoBold),
-			weight: 700,
+			name: "JetBrains Mono",
+			weight: 500,
 			style: "normal",
+			data: loadFont("@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff"),
 		},
 	],
 };
 
-const markup = (title: string, pubDate: string) =>
-	html`<div tw="flex flex-col w-full h-full bg-[#1d1f21] text-[#c9cacc]">
-		<div tw="flex flex-col flex-1 w-full p-10 justify-center">
-			<p tw="text-2xl mb-6">${pubDate}</p>
-			<h1 tw="text-6xl font-bold leading-snug text-white">${title}</h1>
-		</div>
-		<div tw="flex items-center justify-between w-full p-10 border-t border-[#2bbc89] text-xl">
-			<div tw="flex items-center">
-				<svg height="60" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 272 480">
-					<path
-						d="M181.334 93.333v-40L226.667 80v40l-45.333-26.667ZM136.001 53.333 90.667 26.667v426.666L136.001 480V53.333Z"
-						fill="#B04304"
-					></path>
-					<path
-						d="m136.001 119.944 45.333-26.667 45.333 26.667-45.333 26.667-45.333-26.667ZM90.667 26.667 136.001 0l45.333 26.667-45.333 26.666-45.334-26.666ZM181.334 53.277l45.333-26.666L272 53.277l-45.333 26.667-45.333-26.667ZM0 213.277l45.333-26.667 45.334 26.667-45.334 26.667L0 213.277ZM136 239.944l-45.333-26.667v53.333L136 239.944Z"
-						fill="#FF5D01"
-					></path>
-					<path
-						d="m136 53.333 45.333-26.666v120L226.667 120V80L272 53.333V160l-90.667 53.333v240L136 480V306.667L45.334 360V240l45.333-26.667v53.334L136 240V53.333Z"
-						fill="#53C68C"
-					></path>
-					<path d="M45.334 240 0 213.334v120L45.334 360V240Z" fill="#B04304"></path>
-				</svg>
-				<p tw="ml-3 font-semibold">${siteConfig.title}</p>
+function markup(title: string, pubDate: string, tag: string | undefined) {
+	const tagColor = tag ? tagColorHex(tag) : "#8a8f98";
+	if (tag) {
+		return html`
+			<div
+				tw="flex flex-col w-full h-full"
+				style="background:#08090a;color:#f7f8f8;font-family:Inter;"
+			>
+				<div tw="flex items-center" style="padding:56px 72px 24px;">
+					<div
+						tw="flex items-center justify-center"
+						style="width:28px;height:28px;border-radius:50%;background:#18191d;border:1px solid rgba(255,255,255,0.08);margin-right:12px;"
+					>
+						<div
+							style="font-family:'JetBrains Mono';font-size:13px;font-weight:500;color:#f7f8f8;letter-spacing:-0.5px;line-height:1;"
+						>
+							qd
+						</div>
+					</div>
+					<div style="font-size:22px;font-weight:500;">Quentin Delettre</div>
+				</div>
+				<div tw="flex flex-col flex-1 justify-center" style="padding:0 72px;">
+					<div
+						style="font-family:'JetBrains Mono';font-size:18px;color:#8a8f98;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:20px;"
+					>
+						Blog
+					</div>
+					<div
+						style="font-size:64px;font-weight:500;line-height:1.08;letter-spacing:-1.4px;max-width:1000px;"
+					>
+						${title}
+					</div>
+				</div>
+				<div tw="flex items-center justify-between" style="padding:28px 72px 56px;">
+					<div style="font-family:'JetBrains Mono';font-size:20px;color:#62666d;">${pubDate}</div>
+					<div
+						style="display:flex;align-items:center;border:1px solid rgba(255,255,255,0.08);border-radius:9999px;padding:6px 14px 6px 12px;font-family:'JetBrains Mono';font-size:18px;color:#d0d6e0;"
+					>
+						<span
+							style="display:flex;width:8px;height:8px;border-radius:50%;background:${tagColor};margin-right:8px;"
+						></span
+						><span>${tag}</span>
+					</div>
+				</div>
 			</div>
-			<p>by ${siteConfig.author}</p>
+		`;
+	}
+	return html`
+		<div
+			tw="flex flex-col w-full h-full"
+			style="background:#08090a;color:#f7f8f8;font-family:Inter;"
+		>
+			<div tw="flex items-center" style="padding:56px 72px 24px;">
+				<div
+					tw="flex items-center justify-center"
+					style="width:28px;height:28px;border-radius:50%;background:#18191d;border:1px solid rgba(255,255,255,0.08);margin-right:12px;"
+				>
+					<div
+						style="font-family:'JetBrains Mono';font-size:13px;font-weight:500;color:#f7f8f8;letter-spacing:-0.5px;line-height:1;"
+					>
+						qd
+					</div>
+				</div>
+				<div style="font-size:22px;font-weight:500;">Quentin Delettre</div>
+			</div>
+			<div tw="flex flex-col flex-1 justify-center" style="padding:0 72px;">
+				<div
+					style="font-family:'JetBrains Mono';font-size:18px;color:#8a8f98;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:20px;"
+				>
+					Blog
+				</div>
+				<div
+					style="font-size:64px;font-weight:500;line-height:1.08;letter-spacing:-1.4px;max-width:1000px;"
+				>
+					${title}
+				</div>
+			</div>
+			<div tw="flex items-center" style="padding:28px 72px 56px;">
+				<div style="font-family:'JetBrains Mono';font-size:20px;color:#62666d;">${pubDate}</div>
+			</div>
 		</div>
-	</div>`;
+	`;
+}
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
-export async function GET(context: APIContext) {
-	const { pubDate, title } = context.props as Props;
-
-	const postDate = getFormattedDate(pubDate, {
-		month: "long",
-		weekday: "long",
-	});
-	const svg = await satori(markup(title, postDate), ogOptions);
+export async function GET(context: APIContext<Props>) {
+	const { title, pubDate, tag } = context.props;
+	const postDate = getFormattedDate(pubDate, { day: "numeric", month: "long", year: "numeric" });
+	const svg = await satori(markup(title, postDate, tag), ogOptions);
 	const png = new Resvg(svg).render().asPng();
-	return new Response(png, {
+	return new Response(new Uint8Array(png), {
 		headers: {
 			"Cache-Control": "public, max-age=31536000, immutable",
 			"Content-Type": "image/png",
@@ -77,7 +133,16 @@ export async function GET(context: APIContext) {
 	});
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
+export const getStaticPaths = (async () => {
 	const posts = await getAllPosts();
-	return posts.filter(({ data }) => !data.ogImage).map(({ id }) => ({ params: { id } }));
-};
+	return posts
+		.filter(({ data }) => !data.ogImage)
+		.map((post) => ({
+			params: { slug: post.id },
+			props: {
+				title: post.data.title,
+				pubDate: post.data.publishDate,
+				tag: post.data.tags[0],
+			},
+		}));
+}) satisfies GetStaticPaths;

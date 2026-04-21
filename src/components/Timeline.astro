@@ -1,0 +1,87 @@
+---
+interface TimelineItem {
+	when: string;
+	role: string;
+	where: string;
+	past?: boolean;
+}
+
+interface Props {
+	items: TimelineItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="timeline">
+	{
+		items.map((item) => (
+			<div class={`t-item${item.past ? " past" : ""}`}>
+				<span class="when">{item.when}</span>
+				<div>
+					<div class="role">{item.role}</div>
+					<div class="where">{item.where}</div>
+				</div>
+			</div>
+		))
+	}
+</div>
+
+<style>
+	.timeline {
+		position: relative;
+		padding-left: 20px;
+	}
+	.timeline::before {
+		content: "";
+		position: absolute;
+		left: 4px;
+		top: 6px;
+		bottom: 6px;
+		width: 1px;
+		background: var(--border-1);
+	}
+	.t-item {
+		position: relative;
+		padding: 8px 0 20px;
+		display: grid;
+		grid-template-columns: 110px 1fr;
+		gap: 20px;
+	}
+	.t-item::before {
+		content: "";
+		position: absolute;
+		left: -20px;
+		top: 14px;
+		width: 9px;
+		height: 9px;
+		border-radius: 50%;
+		background: var(--bg-app);
+		border: 1.5px solid var(--accent);
+	}
+	.t-item.past::before {
+		border-color: var(--fg4);
+	}
+	.when {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		font-weight: 510;
+		color: var(--fg4);
+		padding-top: 2px;
+		font-variant-numeric: tabular-nums;
+	}
+	.role {
+		font-family: var(--font-sans);
+		font-size: var(--text-base);
+		font-weight: 510;
+		color: var(--fg1);
+		letter-spacing: -0.165px;
+	}
+	.where {
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 400;
+		color: var(--fg3);
+		margin-top: 2px;
+	}
+</style>

@@ -1,38 +1,70 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
-      # Check for npm updates at 9am UTC
       time: "08:00"
       timezone: "Europe/Paris"
-    groups:
-      astro:
-        patterns:
-          - "@astrojs*"
-          - "astro"
-      eslint:
-        patterns:
-          - ^eslint.*
-          - "astro-eslint-parser"
-      prettier:
-        patterns:
-          - ^prettier.*
-      postcss:
-        patterns:
-          - ^postcss.*
-      tailwind:
-        patterns:
-          - "tailwindcss"
-          - "@tailwindcss*"
-    allow:
-      - dependency-type: "direct"
     open-pull-requests-limit: 10
     assignees:
       - "qdelettre"
+    allow:
+      - dependency-type: "direct"
+    groups:
+      astro:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+        update-types: ["minor", "patch"]
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "prettier-plugin-tailwindcss"
+        update-types: ["minor", "patch"]
+      eslint:
+        patterns:
+          - "*eslint*"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "astro-eslint-parser"
+        update-types: ["minor", "patch"]
+      prettier:
+        patterns:
+          - "prettier"
+          - "prettier-plugin-astro"
+        update-types: ["minor", "patch"]
+      playwright:
+        patterns:
+          - "@playwright/*"
+          - "@axe-core/playwright"
+          - "eslint-plugin-playwright"
+        update-types: ["minor", "patch"]
+      og-image:
+        patterns:
+          - "satori"
+          - "satori-html"
+          - "@resvg/resvg-js"
+          - "sharp"
+        update-types: ["minor", "patch"]
+      fontsource:
+        patterns:
+          - "@fontsource/*"
+      types:
+        patterns:
+          - "@types/*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "08:00"
+      timezone: "Europe/Paris"
+    assignees:
+      - "qdelettre"
+    groups:
+      actions:
+        patterns:
+          - "*"
+        update-types: ["minor", "patch"]
