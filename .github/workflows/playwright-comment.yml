@@ -1,0 +1,44 @@
+name: playwright-comment
+
+on:
+  workflow_run:
+    workflows: [playwright]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: playwright-comment-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  comment:
+    name: Publish Playwright report summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >-
+      github.event.workflow_run.event == 'pull_request'
+      && github.event.workflow_run.head_repository.fork == false
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Checkout trusted ref
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download Playwright report
+        uses: actions/download-artifact@v8
+        with:
+          name: playwright-report
+          path: playwright-report/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish report summary
+        uses: daun/playwright-report-summary@1229105480a2a4bdd91598d8a146fbab41343fce # v3
+        with:
+          report-file: playwright-report/report.json
+          comment-title: Playwright results
