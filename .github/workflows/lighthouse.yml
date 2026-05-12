@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: [build]
     types: [completed]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,7 +11,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: lighthouse-${{ github.event.workflow_run.head_branch || github.ref }}
+  group: lighthouse-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 jobs:
@@ -20,24 +19,21 @@ jobs:
     name: Lighthouse CI
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.head_repository.fork == false
     steps:
-      - name: Checkout
+      - name: Checkout trusted ref (base repo default branch)
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Download dist artifact (auto path)
-        if: github.event_name == 'workflow_run'
+      - name: Download dist artifact
         uses: actions/download-artifact@v8
         with:
           name: dist
@@ -45,26 +41,21 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build (manual dispatch path)
-        if: github.event_name == 'workflow_dispatch'
-        run: npm run build
-
       - name: Verify resolved build context
         env:
-          RESOLVED_HASH: ${{ github.event.workflow_run.head_sha || github.sha }}
-          RESOLVED_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          RESOLVED_HASH: ${{ github.event.workflow_run.head_sha }}
+          RESOLVED_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
           echo "Resolved current_hash:   $RESOLVED_HASH"
           echo "Resolved current_branch: $RESOLVED_BRANCH"
-          echo "Trigger event:           ${{ github.event_name }}"
           test -n "$RESOLVED_HASH" || { echo "::error::CURRENT_HASH is empty — LHCI would post against the wrong ref"; exit 1; }
 
       - name: Run Lighthouse CI
         run: npx --yes @lhci/cli@0.15.x autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event.workflow_run.head_sha || github.sha }}
-          LHCI_BUILD_CONTEXT__CURRENT_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
-          LHCI_BUILD_CONTEXT__COMMIT_TIME: ${{ github.event.workflow_run.head_commit.timestamp || '' }}
-          LHCI_BUILD_CONTEXT__COMMIT_MESSAGE: ${{ github.event.workflow_run.head_commit.message || '' }}
-          LHCI_BUILD_CONTEXT__AUTHOR: ${{ github.event.workflow_run.head_commit.author.name || github.actor }}
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event.workflow_run.head_sha }}
+          LHCI_BUILD_CONTEXT__CURRENT_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          LHCI_BUILD_CONTEXT__COMMIT_TIME: ${{ github.event.workflow_run.head_commit.timestamp }}
+          LHCI_BUILD_CONTEXT__COMMIT_MESSAGE: ${{ github.event.workflow_run.head_commit.message }}
+          LHCI_BUILD_CONTEXT__AUTHOR: ${{ github.event.workflow_run.head_commit.author.name }}
