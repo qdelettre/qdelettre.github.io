@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   actions: read
+  pull-requests: write
 
 concurrency:
   group: playwright-${{ github.event.workflow_run.head_branch || github.ref }}
@@ -61,3 +62,10 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      - name: Publish report summary
+        if: always() && github.event_name == 'workflow_run'
+        uses: daun/playwright-report-summary@v3
+        with:
+          report-file: playwright-report/report.json
+          comment-title: Playwright results
