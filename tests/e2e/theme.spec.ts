@@ -3,6 +3,14 @@ import { test, expect } from "@playwright/test";
 const LIGHT_BG_RGB = "rgb(247, 248, 248)"; // #f7f8f8
 const DARK_BG_RGB = "rgb(8, 9, 10)"; // #08090a
 
+const ARIA_LABEL_SYSTEM = "Theme: System — click for Light";
+const ARIA_LABEL_LIGHT = "Theme: Light — click for Dark";
+const ARIA_LABEL_DARK = "Theme: Dark — click for System";
+
+const TOOLTIP_SYSTEM = "System";
+const TOOLTIP_LIGHT = "Light";
+const TOOLTIP_DARK = "Dark";
+
 test.describe("theme — OS preference", () => {
 	test("light OS → body background is light", async ({ page }) => {
 		await page.emulateMedia({ colorScheme: "light" });
@@ -165,5 +173,66 @@ test.describe("theme — matchMedia listener", () => {
 		await expect
 			.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor))
 			.toBe(DARK_BG_RGB);
+	});
+});
+
+test.describe("theme — tooltip parity", () => {
+	test("data-tooltip and aria-label render on first paint (system)", async ({ page }) => {
+		await page.emulateMedia({ colorScheme: "dark" });
+		await page.goto("/");
+		const toggle = page.locator(".theme-toggle");
+		await expect(toggle).toHaveAttribute("data-theme-state", "system");
+		await expect(toggle).toHaveAttribute("aria-label", ARIA_LABEL_SYSTEM);
+		await expect(toggle).toHaveAttribute("data-tooltip", TOOLTIP_SYSTEM);
+	});
+
+	test("data-tooltip and aria-label update through the cycle", async ({ page }) => {
+		await page.emulateMedia({ colorScheme: "dark" });
+		await page.goto("/");
+		const toggle = page.locator(".theme-toggle");
+
+		await toggle.click();
+		await expect(toggle).toHaveAttribute("aria-label", ARIA_LABEL_LIGHT);
+		await expect(toggle).toHaveAttribute("data-tooltip", TOOLTIP_LIGHT);
+
+		await toggle.click();
+		await expect(toggle).toHaveAttribute("aria-label", ARIA_LABEL_DARK);
+		await expect(toggle).toHaveAttribute("data-tooltip", TOOLTIP_DARK);
+
+		await toggle.click();
+		await expect(toggle).toHaveAttribute("aria-label", ARIA_LABEL_SYSTEM);
+		await expect(toggle).toHaveAttribute("data-tooltip", TOOLTIP_SYSTEM);
+	});
+
+	test("tooltip is revealed on hover", async ({ page }) => {
+		await page.emulateMedia({ colorScheme: "dark" });
+		await page.goto("/");
+		const toggle = page.locator(".theme-toggle");
+		await expect(toggle).toBeVisible();
+		await toggle.hover();
+		await expect
+			.poll(
+				() =>
+					page.evaluate(() => {
+						const el = document.querySelector(".theme-toggle");
+						return el ? parseFloat(getComputedStyle(el, "::before").opacity) : null;
+					}),
+				{ timeout: 1000 },
+			)
+			.toBe(1);
+	});
+
+	test("system icon uses monitor glyph, not half-disc", async ({ page }) => {
+		await page.emulateMedia({ colorScheme: "dark" });
+		await page.goto("/");
+
+		// Monitor glyph: screen <rect> exists.
+		await expect(page.locator(".theme-toggle .icon-system rect")).not.toHaveCount(0);
+
+		// Regression guard: the old half-disc icon used a <path fill="currentColor">
+		// to fill the right half. The monitor glyph has no filled path.
+		await expect(page.locator('.theme-toggle .icon-system path[fill="currentColor"]')).toHaveCount(
+			0,
+		);
 	});
 });
