@@ -10,6 +10,7 @@
 	type="button"
 	data-theme-state="system"
 	aria-label="Theme: System — click for Light"
+	data-tooltip="System"
 >
 	<svg
 		class="icon icon-sun"
@@ -54,9 +55,8 @@
 		stroke-linejoin="round"
 		aria-hidden="true"
 	>
-		<circle cx="12" cy="12" r="9"></circle>
-		<path d="M12 3v18"></path>
-		<path d="M12 3a9 9 0 0 0 0 18" fill="currentColor"></path>
+		<rect x="3" y="5" width="18" height="12" rx="2"></rect>
+		<path d="M8 21h8 M12 17v4"></path>
 	</svg>
 </button>
 
@@ -97,8 +97,10 @@
 		if (!btn) return;
 		const current = readState();
 		const next = cycle[current];
+		const stateLabel = titleCase(current);
 		btn.dataset.themeState = current;
-		btn.setAttribute("aria-label", `Theme: ${titleCase(current)} — click for ${titleCase(next)}`);
+		btn.setAttribute("aria-label", `Theme: ${stateLabel} — click for ${titleCase(next)}`);
+		btn.dataset.tooltip = stateLabel;
 	}
 
 	function applyTheme(state: ThemeState): void {
@@ -194,5 +196,13 @@
 	.theme-toggle[data-theme-state="dark"] .icon-moon,
 	.theme-toggle[data-theme-state="system"] .icon-system {
 		opacity: 1;
+	}
+	/* Right-anchor the tooltip — the toggle sits at the header's right edge,
+	   and the default center-aligned popover would extend past the viewport
+	   on narrow screens, inflating scrollWidth. */
+	.theme-toggle[data-tooltip]::before {
+		left: auto;
+		right: 0;
+		transform: none;
 	}
 </style>
